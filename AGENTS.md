@@ -29,8 +29,14 @@ The working tree being clean is not enough — git history travels with the repo
 
 ## Multi-agent handoff
 
-Agents share this working tree, so avoid simultaneous edits. Commits are the baton:
+Three agents work in this repo — Factory Droid, Codex, and Claude Code. They share one working tree, so avoid simultaneous edits. Commits are the baton.
 
-- Droid works on `factory/<topic>` branches so authorship stays obvious in history and a bad run is one `git branch -D`
+**Branch by author:** `<agent>/<topic>` — `factory/`, `codex/`, `claude/`. Authorship stays obvious in history, a bad run is one `git branch -D`, and nobody has to reconstruct who wrote what from commit messages.
+
+- Push branches to the private remote as you go. This machine is not a backup.
 - Hand off via `git diff`; the reviewing agent reads the diff, not the other agent's reasoning
-- This mirrors the method the repo itself specifies — independent context, no transcript bleed. If it feels clumsy in practice, that is real signal about the design. Record it in `phase-0/README.md` under Notes.
+- Land work on `main` only after review, and keep convention/spec changes off feature branches so they don't ride along with unreviewed work
+
+This mirrors the method the repo itself specifies — independent context, no transcript bleed. If it feels clumsy in practice, that is real signal about the design. Record it in `phase-0/README.md` under Notes.
+
+**A note on which agent does what.** Roles here are not interchangeable, and the split should be deliberate rather than whoever is open in a window: the agent that authored a plan should not be the one that approves it, and the agent that writes an implementation should not be the one that validates it. That is invariant #1 applied to the humans-and-agents layer, not just the runtime.
