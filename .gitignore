@@ -1,0 +1,5 @@
+.DS_Store
+.factory/
+.venv/
+__pycache__/
+node_modules/
