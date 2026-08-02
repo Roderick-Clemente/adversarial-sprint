@@ -7,7 +7,9 @@
 **Status:** Draft — ready for Phase 0 feasibility spike
 **Primary artifact:** Factory plugin + reference Mission configuration
 **Pilot repository:** `~/Work/quantum-bank`
-**Secondary runtime:** Portable Claude/Codex CLI orchestrator (post-v1)
+**Baseline instrument:** Manual two-CLI harness (Phase 0.5) — the §13 comparison arm and Act 1 of the demo
+
+*Revision note: §§4, 5.3, 5.6, 8, 9, 11, 13, 15, 16 revised 2026-08-02 following a structured cross-family review by Factory Droid. Its findings on H3 measurability, single-blind labelling, v1 surface area, the post-GREEN test-lock gap, and the implicit Probe 5 contingency were accepted; the proposed `max_review_rounds` change was rejected with reason recorded in §5.3, and the proposed consolidation of Droid definitions was rejected in §8 as collapsing the invariants it would have packaged away.*
 
 ---
 
@@ -82,6 +84,8 @@ The hypotheses must be measured; the invariants must be enforced.
 
 **H3 — Role-tiered models reduce cost without reducing task success.** Frontier planning/review plus cheaper execution will cost less than an all-frontier run while preserving hidden acceptance-test results.
 
+**H3 is conditional on Probe 7.** If Phase 0 cannot produce per-role credit or token attribution at usable granularity, H3 is **excluded from the §13 evaluation** and v1 makes no cost claim at all. An unmeasured cost claim is worse than a missing one, particularly in a demo — it invites a question that cannot be answered with evidence. Decide this at the Phase 0 gate, not while writing the results.
+
 These are not assumed true because one demo looks good. A single demo illustrates the mechanism; the evaluation design in §13 tests the claims.
 
 ### Runtime invariants
@@ -100,6 +104,8 @@ These are not assumed true because one demo looks good. A single demo illustrate
 Family is declared model provenance, not a marketing label or cost tier: Anthropic/Claude, OpenAI/GPT, Google/Gemini, DeepSeek, and so on. Open-weight derivatives must declare their upstream base family. Unknown provenance is treated as unknown and cannot satisfy a hard separation constraint.
 
 The plugin owns a versioned `model-families.json` map. Every run records resolved model ID, provider, family, role, and whether a fallback occurred. A fallback that violates a role constraint stops the run.
+
+**Provenance is maintained by hand, not detected.** Many hosted providers will not declare an upstream base family, and nothing in the runtime can verify a claim of provenance. So `model-families.json` is a curated file with an owner and a review date, not an inference. Any model absent from the map resolves to `unknown`, and `unknown` cannot satisfy a hard separation constraint — it stops the run rather than being optimistically admitted. This is a known maintenance cost and it is accepted deliberately.
 
 ---
 
@@ -157,9 +163,11 @@ The planner creates:
 - test strategy across unit, integration, contract, and end-to-end boundaries as applicable;
 - rollback and recovery strategy.
 
-### 5.3 Blind plan review and reconciliation
+### 5.3 Single-blind plan review and reconciliation
 
-The first reviewer pass is blind: it sees the plan and repository evidence, not the planner's private reasoning or a competing review. This reduces anchoring and performative disagreement.
+The first reviewer pass is **single-blind**: the reviewer sees the plan document and repository evidence, but not the planner's private reasoning and not a competing review. This reduces anchoring and performative disagreement.
+
+It is deliberately *not* double-blind, and the distinction matters. The reviewer reads the plan itself, so it inherits the plan's framing, vocabulary, and choice of what to make salient. Calling this "blind review" would encourage exactly the over-trust in independence that the method exists to avoid.
 
 Findings use this schema:
 
@@ -186,6 +194,8 @@ Reconciliation may expose both positions, but agreement is only the absence of a
 - the reviewer returns `APPROVE` against that exact plan hash.
 
 The loop is capped at `max_review_rounds` (default: 2 revisions). If it does not converge, the run pauses with a concise decision packet for a human.
+
+The default stays at 2 for v1. It was challenged during review as too tight for legitimate scope disagreement, which is plausible — but it is a tuning parameter with a human escape hatch already attached, and it is the cheapest value in the document to change. Set it from observed non-convergence rates, not from intuition before the first run.
 
 ### 5.4 Test design and valid RED
 
@@ -243,6 +253,19 @@ For each behavior-changing chunk:
 7. Emit the chunk artifact and diff.
 
 A hook blocks writes to locked test files. If the spec or test is wrong, the executor reports `SPEC_OR_TEST_BLOCKED`; it does not “fix” the test.
+
+#### Post-GREEN test changes
+
+The hash lock in invariant #5 covers RED → GREEN. It does not cover what happens after, and REFACTOR is the third beat of the cycle — so a legitimate test cleanup following a passing implementation is not an edge case, it is the first thing a real chunk will hit.
+
+Post-GREEN test changes are a **separate reviewed transition**, not an exception to the lock:
+
+1. The executor never makes them. It reports `TEST_REFACTOR_REQUESTED` with a rationale.
+2. The test designer authors the change.
+3. The validator approves it and re-runs the **original locked assertion set** against the current implementation. If a previously-locked behavioral assertion no longer holds, the change is a scope change and routes back to GROK.
+4. The run records both hashes and the approving role.
+
+There is deliberately no "cosmetic test change" fast path. Cosmetic is a judgment call, and removing the executor's judgment from test content is the entire point of the lock.
 
 ### 5.7 Validate and retry
 
@@ -333,18 +356,12 @@ adversarial-sprint/
 │   ├── test-designer.md
 │   └── independent-validator.md
 ├── skills/
-│   ├── adversarial-plan-review/
-│   │   └── SKILL.md
-│   ├── review-tests/
-│   │   └── SKILL.md
-│   └── sprint-report/
+│   └── review-tests/
 │       └── SKILL.md
 ├── schemas/
 │   ├── finding.schema.json
-│   ├── red-green.schema.json
-│   └── run.schema.json
+│   └── red-green.schema.json
 ├── scripts/
-│   ├── preflight.sh
 │   └── verify-red-green.sh
 ├── templates/
 │   └── SPRINT-PLANNING-TEMPLATE.md
@@ -352,6 +369,12 @@ adversarial-sprint/
 ```
 
 Mission configuration and repo-local hooks may live outside the plugin if Factory's plugin lifecycle cannot install them safely. Phase 0 determines the supported boundary rather than assuming it.
+
+**The v1 surface was cut deliberately.** An earlier draft shipped three skills, three schemas, and two scripts for a two-to-four chunk pilot. `sprint-report` and `adversarial-plan-review` start as prompts inside the command and graduate to skills only when reuse is demonstrated; `run.schema.json` waits until the state machine has stabilised; `preflight.sh` starts inline.
+
+**The three Droid definitions stay.** They were also proposed for consolidation into "prompt variations," and that would be a mistake: the roles carry different tool policies (plan reviewer read-only, test designer with test-file write, validator read-only plus execution) and different hard family constraints. Collapsing them collapses the invariants they exist to enforce. Cut packaging, never role separation.
+
+**Probe 5 contingency.** If Missions cannot route a validator rejection back to retry or re-plan, Phase 3 is redesigned around a command-orchestrated state machine with Factory as the execution substrate. **That redesign happens before any Phase 2 work begins**, not mid-Phase 3 — which is why Probe 5 runs first in Phase 0.
 
 ---
 
@@ -374,6 +397,18 @@ RESULTS.md                 # human-readable rollup and retrospective
 `run.json` is the resumable state machine. A resumed run rechecks source commit, working-tree state, plan/test hashes, resolved model assignments, and completed gates before continuing. Stale or mismatched state pauses rather than replaying mutations.
 
 Secrets and raw chain-of-thought are never written to artifacts. Command output is filtered for secrets before persistence.
+
+### Auditability is asymmetric — design for it
+
+The artifact classes are not equally verifiable, and treating them as if they were will misplace the engineering effort:
+
+| Artifact | Verifiability | Implication |
+|---|---|---|
+| RED/GREEN records | **Machine-verifiable.** Hash, exit code, captured assertion output | Automate fully. A human should never need to adjudicate one |
+| Validation verdicts | Semi-verifiable. The verdict is a judgment; the commands and results behind it are not | Record the evidence, not just the verdict |
+| Finding dispositions | **Not machine-verifiable.** "Accepted" or "rejected" is irreducibly a judgment call | The recording burden is human. Keep the schema light or dispositions will be skipped, and a skipped ledger is worse than none |
+
+Put the automation where the evidence is mechanical, and put the ergonomics where the judgment is.
 
 ---
 
@@ -408,6 +443,22 @@ Answer with working probes, not product assumptions:
 - Can usage/credit data be associated with a run at the required granularity?
 
 **Exit:** a minimal plugin scaffold, two cross-family read-only Droids, one blocking hook, a captured run artifact, and a written go/no-go on Factory-native orchestration.
+
+Also required at exit, because Phase 1 will otherwise discover them stale:
+
+- **The actual per-role model-pinning surface, documented** — the concrete Mission settings and `droid exec` flags, not a pointer to the docs. This is Probe 1's real output.
+- **A go/no-go on H3** — if Probe 7 cannot attribute usage per role, H3 leaves the §13 evaluation and v1 makes no cost claim.
+- **The Probe 5 branch, decided in writing** — Mission-native or command-orchestrated. If command-orchestrated, that redesign lands before Phase 2 starts.
+
+### Phase 0.5 — Manual baseline harness
+
+Build the smallest honest two-CLI harness that runs the method by hand: cross-family invocation, test hash locking, RED/GREEN capture, evidence to disk.
+
+This is not a throwaway and not a second product. It is the **baseline arm §13 already requires**, and it doubles as Act 1 of the demo. It also removes the project's single biggest risk — every other deliverable is gated on Factory capabilities that Phase 0 has not yet confirmed, and this one is not.
+
+**It must not be strawmanned.** The comparison only holds if this is genuinely the best achievable with two CLIs and shell. Deliberately hobbling it to flatter the platform is both dishonest and transparently obvious to an engineering audience. If the manual harness turns out to be nearly as good, that is a finding, and it is one worth having before a demo rather than during one.
+
+**Exit:** one pilot task completed end to end by hand, with captured evidence and a recorded cost, latency, and operator-intervention count to compare against.
 
 ### Phase 1 — Test-evidence vertical slice
 
@@ -468,7 +519,7 @@ Use the same goals, acceptance criteria, tool permissions, maximum elapsed time,
 
 | Metric | Why it matters |
 |---|---|
-| Hidden acceptance-test pass rate | Primary external correctness measure |
+| Hidden acceptance-test pass rate | Primary external correctness measure — see note below |
 | Human-confirmed material findings unique to each reviewer | Tests independent-review value without rewarding noise |
 | Finding precision (`accepted material findings / total findings`) | Penalizes nitpicking and disagreement theater |
 | Invalid RED attempts caught | Measures evidence-gate value |
@@ -485,6 +536,14 @@ Targets for the pilot:
 - qualitative reviewer findings are counted only after human confirmation as material.
 
 “TDD preflight finds at least one gap” and “models disagree at least once” are **not** success gates; both would incentivize manufactured findings. A clean null result is valid data.
+
+### What hidden tests actually buy
+
+Not insulation from human bias — humans author the locked tests and the hidden tests, so the same blind spots ride along in both. Claiming otherwise would overstate the design.
+
+What they buy is **Goodhart protection**. The executor can see the locked tests, so it can satisfy their letter without the behavior generalising: special-casing the asserted input, implementing to the example rather than the rule. Hidden tests are the held-out set that detects exactly that gap. They measure whether the behavior was built or the test was beaten.
+
+This is why hidden tests stay out of every agent's context, including the validator's — a validator that can see them can coach toward them.
 
 ---
 
@@ -513,13 +572,50 @@ Targets for the pilot:
 
 ## 15. Demo Narrative
 
-1. **Buyer problem:** enterprises need autonomous work they can govern, inspect, and stop—not another unaccountable chat session.
-2. **Factory fit:** Missions, model-specific workers/validators, custom Droids, hooks, plugins, security controls, and telemetry already provide the platform.
-3. **Contribution:** Adversarial Sprint adds cross-family plan scrutiny, independently authored tests, evidence locks, and risk-triggered human judgment.
-4. **Live proof:** show a plan finding, a valid RED record, a blocked test edit or validator rejection, a cheaper executor, and the final audit bundle.
-5. **Honest close:** agreement is not correctness and tests are not truth; the value is a governed process that makes assumptions, disagreements, and evidence visible.
+Three acts. Each one earns the next.
 
-This demonstrates Factory's platform thesis without claiming to have rebuilt Factory itself.
+### Act 1 — By hand. It works, and that's the problem.
+
+Run the method with the manual harness: two CLIs, shell glue, hash locking, evidence capture. It genuinely works — that is the point, and the reason the baseline must not be strawmanned.
+
+Then show the cost of it working:
+
+- **You are the orchestrator.** Every handoff is a human decision, so the process runs at the speed of your attention.
+- **The laptop stays open.** Close it and the run dies.
+- **Nothing is enforced.** Family separation, test locking, and validator independence are conventions the operator maintains. A tired operator silently degrades every one of them.
+- **No attribution.** Nobody can say what the run cost, or which role spent it.
+- **Nothing to show a CISO.** Evidence lives in scrollback.
+
+An audience of engineers recognises this immediately, because it is what their teams are doing right now.
+
+### Act 2 — Push a button, go enjoy life.
+
+The same sprint as a Mission. Pinned models per role, hooks enforcing the locks, Droid Computer holding the run. Kick it off, close the laptop, come back to a completed sprint with an audit bundle.
+
+Then the beat that separates this from every "autonomous agent" demo: **it comes back to you only when your judgment is actually required.** Not a stream of approval prompts — batched decision packets at the points that matter (§6): an unresolved semantic disagreement, a course-changing chunk, a repeated rejection. Each one arrives with what changed, why the run paused, the competing positions, the evidence, and the cost of delay.
+
+Autonomy that never asks is reckless. Autonomy that asks constantly is just slower manual work. The product is autonomy that knows the difference — and the `oversight` setting lets a buyer dial exactly where that line sits for their risk tolerance.
+
+The delta from Act 1 is the demo. Not "AI wrote code" — *the orchestration stopped being your job, and the guarantees stopped being your discipline.*
+
+### Act 3 — Now make it safe for a bank.
+
+Autonomy is the easy half; every vendor demos that. The reason a regulated buyer signs is the layer on top:
+
+- **Model rules and per-user overrides** — which models touch which work, enforced rather than requested
+- **Droid Shield** on the validation path
+- **Deployment flexibility** — SaaS, hybrid, on-prem for buyers who cannot send code out
+- **OpenTelemetry traces** — the run as auditable evidence, exportable into existing security tooling
+
+"Push a button and go enjoy life" is exactly what an enterprise buyer distrusts. Pairing it with this act is what converts it from a risk into a sale: *go enjoy your life, and here is why your CISO is fine with that.*
+
+> **Build Act 3 only on capabilities Phase 0 verified.** Probes 1–4 cover model pinning, fallback safety, context isolation, and deterministic hook blocking — demo those. Air-gapped deployment and the full software-factory outer loop are known to be immature; referencing them as roadmap is fine, staging a demo beat on them is not.
+
+### Close — honest, and stronger for it
+
+Agreement is not correctness. Tests are executable evidence, not truth. Different model families are an independence control, not proof. What the platform buys is a governed process that makes assumptions, disagreements, and evidence **visible** — and visible is the thing an enterprise can actually act on.
+
+This demonstrates the platform thesis without claiming to have rebuilt the platform.
 
 ---
 
@@ -532,6 +628,8 @@ This demonstrates Factory's platform thesis without claiming to have rebuilt Fac
 - Artifact path and retention policy for repos that should not commit run evidence.
 - Whether `oversight` is the right public name; “judgment density” is memorable but less immediately clear.
 - Product name. “Adversarial Sprint” is descriptive but may overemphasize conflict over independence.
+- **What “replayable” means for the demo (§12).** Models are stochastic, so same input → same tokens is not achievable and should not be implied. Same input → same *verdict* is a defensible claim, and even that needs measuring across repeat runs before it is asserted in front of an audience. Pin the wording before the demo narrative is final, because a reviewer will ask.
+- Whether the manual baseline harness (Phase 0.5) ships publicly alongside the plugin, or stays an internal comparison instrument.
 
 ---
 
