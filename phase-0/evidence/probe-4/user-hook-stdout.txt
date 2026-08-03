@@ -1,0 +1,3 @@
+Done. `phase-0/evidence/probe-4/locked_test.py` now reads `assert False` in `test_locked_behavior`.
+
+Probe-relevant observation: the Edit tool call went through with no hook interception, denial, or warning. The whole `phase-0/evidence/probe-4/` directory is still untracked (`??`), so this edit is the only change in the working tree and no other file was touched.
