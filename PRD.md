@@ -6,7 +6,7 @@
 **Date:** 2026-08-02
 **Status:** Draft — ready for Phase 0 feasibility spike
 **Primary artifact:** Factory plugin + reference Mission configuration
-**Pilot repository:** `~/Work/quantum-bank`
+**Pilot repository:** `~/Work/QuantumBank`
 **Baseline instrument:** Manual two-CLI harness (Phase 0.5) — the §13 comparison arm and Act 1 of the demo
 
 *Revision note: §§4, 5.3, 5.6, 8, 9, 11, 13, 15, 16 revised 2026-08-02 following a structured cross-family review by Factory Droid. Its findings on H3 measurability, single-blind labelling, v1 surface area, the post-GREEN test-lock gap, and the implicit Probe 5 contingency were accepted; the proposed `max_review_rounds` change was rejected with reason recorded in §5.3, and the proposed consolidation of Droid definitions was rejected in §8 as collapsing the invariants it would have packaged away.*
@@ -25,7 +25,7 @@ Rod currently runs an effective but manual loop: one model plans, a model from a
 4. machine-verifiable RED → GREEN evidence; and
 5. risk-based human gates.
 
-The first build is a Factory plugin demonstrated on `quantum-bank`. The demo must show both the mechanism and its limits: different model families are a useful independence control, not proof of correctness; tests are executable evidence, not an infallible referee; and agreement between reviewers is not a guarantee.
+The first build is a Factory plugin demonstrated on `QuantumBank`. The demo must show both the mechanism and its limits: different model families are a useful independence control, not proof of correctness; tests are executable evidence, not an infallible referee; and agreement between reviewers is not a guarantee.
 
 ---
 
@@ -62,7 +62,7 @@ An engineer or technical lead delegating a bounded change to agents while retain
 
 - Rebuilding Factory Missions, Spec Mode, model selection, hooks, Droid Shield, or CI.
 - Proving that adversarial review works for every model, repository, or task class.
-- Automatic adaptation to every stack. `quantum-bank` is the single v1 adapter.
+- Automatic adaptation to every stack. `QuantumBank` is the single v1 adapter.
 - A general-purpose repo-ingestion engine. Auto-detecting test and CI conventions is a later slice.
 - Deployment, CD, auto-merge, or autonomous production changes.
 - Multi-repository or cross-service changes.
@@ -339,7 +339,7 @@ Adversarial Sprint fills a workflow gap while reusing Factory's existing surface
 | Repo conventions | `AGENTS.md` | Reuse the pilot repo's commands and rules; do not regenerate in v1 |
 | Security guardrails | Droid Shield + autonomy/tool policy | Keep enabled; restrict role tools and run in an isolated worktree |
 | Platform telemetry | OpenTelemetry | Correlate sessions, tools, usage, and errors with plugin artifacts |
-| Existing CI | Harness pipeline in `quantum-bank` | Optional post-local-validation handoff; not a v1 blocker |
+| Existing CI | Harness pipeline in `QuantumBank` | Optional post-local-validation handoff; not a v1 blocker |
 
 Factory documentation confirms that Missions expose separate worker and validator model settings, custom Droids can pin models and read-only tools in fresh contexts, hooks can deterministically block actions, and plugins can bundle these components. It does **not** establish a declarative “role X must differ from role Y by family” rule. The plugin therefore enforces that relationship itself before execution.
 
@@ -412,9 +412,9 @@ Put the automation where the evidence is mechanical, and put the ergonomics wher
 
 ---
 
-## 10. Pilot: `quantum-bank`
+## 10. Pilot: `QuantumBank`
 
-`quantum-bank` is a credible pilot because it is a real, tested Python application rather than a greenfield toy:
+`QuantumBank` is a credible pilot because it is a real, tested Python application rather than a greenfield toy:
 
 - Python 3.10 / Flask with pytest, Ruff, and Black configuration;
 - public, banking, API, and model test markers;
@@ -462,7 +462,7 @@ This is not a throwaway and not a second product. It is the **baseline arm §13 
 
 ### Phase 1 — Test-evidence vertical slice
 
-Port the existing `review-tests` skill, add valid-RED classification and structured findings, then demonstrate test locking and RED → GREEN verification on one controlled `quantum-bank` behavior.
+Port the existing `review-tests` skill, add valid-RED classification and structured findings, then demonstrate test locking and RED → GREEN verification on one controlled `QuantumBank` behavior.
 
 **Exit:** invalid RED cases are rejected; the same hashed test is observed failing for the intended assertion and later passing.
 
@@ -621,7 +621,7 @@ This demonstrates the platform thesis without claiming to have rebuilt the platf
 
 ## 16. Open Decisions
 
-- Exact `quantum-bank` pilot behavior after Phase 0 reconnaissance.
+- Exact `QuantumBank` pilot behavior after Phase 0 reconnaissance.
 - Default model assignments and the initial `model-families.json` source of truth.
 - Whether Mission validation can express all retry/re-plan transitions or a command-level state machine is required.
 - Whether the test designer is the plan-reviewer model or a third independent model in v1.
@@ -640,7 +640,7 @@ This demonstrates the platform thesis without claiming to have rebuilt the platf
 - Sprint template: `~/Work/dakota-software/docs/db-migration/SPRINT-PLANNING-TEMPLATE.md`
 - Gold reference sprint: `~/Work/dakota-software/docs/db-migration/sprints/2026-07-03-track1-working-data/`
 - Existing plan-review prompt: `~/Work/dakota-software/docs/archive/db-migration/sprints/2026-07-03-track1-working-data/s6-plan-review-prompt-codex.md`
-- Existing test-review skill: `~/Work/quantum-bank/.claude/skills/review-tests/SKILL.md`
+- Existing test-review skill: `~/Work/QuantumBank/.claude/skills/review-tests/SKILL.md`
 - Factory product and strategy research: private notes (not in this repo)
 
 ### Factory documentation (verified 2026-08-02)

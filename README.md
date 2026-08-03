@@ -3,7 +3,7 @@
 *Multi-model adversarial planning, execution, and validation for agentic coding — built as a Factory plugin.*
 
 **Status:** Pre-build. Phase 0 feasibility spike is the current gate.
-**Pilot repo:** `~/Work/quantum-bank`
+**Pilot repo:** `~/Work/QuantumBank`
 **Full spec:** [`PRD.md`](./PRD.md)
 
 ---

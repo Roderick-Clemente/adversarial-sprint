@@ -1,5 +1,10 @@
 .DS_Store
-.factory/
 .venv/
 __pycache__/
 node_modules/
+
+# Local Factory tool state (sessions, caches, local settings). Not evidence.
+# Probe and run evidence that should survive is committed under phase-0/evidence/
+# instead — see phase-0/evidence/README.md. PRD §9 permits a configured artifact
+# path, so nothing here needs to be un-ignored.
+.factory/

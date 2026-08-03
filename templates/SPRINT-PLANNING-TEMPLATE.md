@@ -1,6 +1,6 @@
 > 📌 **Canonical copy.** Single source of truth for the GROK → CHUNK → EXECUTE method. It originated in `tone-dragons/_attic/planning/ai-sprints/` (v1.2) and was then copy-pasted into six-plus dakota repos, where it started to drift. Improve it here; treat every other copy as stale.
 >
-> Adapt stack specifics per repo — the npm/TypeScript examples below become Python/pytest for `quantum-bank`. Pair with the `review-tests` skill and cross-family plan review, see [`../PRD.md`](../PRD.md).
+> Adapt stack specifics per repo — the npm/TypeScript examples below become Python/pytest for `QuantumBank`. Pair with the `review-tests` skill and cross-family plan review, see [`../PRD.md`](../PRD.md).
 
 ---
 

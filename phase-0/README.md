@@ -6,6 +6,25 @@ Each probe below can kill or reshape the design. Answer honestly — a "no" here
 
 > **Worth doing even if the project dies.** These probes double as a real evaluation of the platform's enterprise controls: can models be pinned per role, do agents get genuinely isolated context, can policy block an action deterministically, can spend be attributed at useful granularity. Those answers are worth having on their own, whether or not this plugin ever ships.
 
+## Environment under test
+
+Every answer below is scoped to this environment. A probe result recorded without it cannot be rechecked or contested later, and "Factory can't do X" is not a usable finding without a version attached.
+
+| | |
+|---|---|
+| Factory CLI (`droid --version`) | **0.186.0** |
+| Host | macOS (darwin 24.6.0), case-sensitive filesystem |
+| Pilot repo | `~/Work/QuantumBank` |
+| First probed | _(record on first probe)_ |
+
+**Re-verify after any CLI upgrade.** A capability that appears or disappears between versions is itself a finding worth recording rather than a silent correction.
+
+## Evidence
+
+Committed probe evidence lives in [`evidence/`](./evidence/), one directory per probe. `.factory/` is gitignored as local tool state, so nothing written there survives — see [`evidence/README.md`](./evidence/README.md) for why and what a probe record needs.
+
+Each **Result** below should end with a link to its evidence directory. A result without one is an opinion.
+
 ---
 
 ## Probe 1 — Per-role model pinning
@@ -97,7 +116,7 @@ Each probe below can kill or reshape the design. Answer honestly — a "no" here
 - [ ] Minimal plugin scaffold that installs cleanly
 - [ ] Two cross-family read-only Droids
 - [ ] One hook that provably blocks a locked-test edit
-- [ ] One captured run artifact
+- [ ] One captured run artifact, committed under `evidence/`
 - [ ] **Written go/no-go on Factory-native orchestration** — if Probe 5 says no, the design changes from Mission-native to command-orchestrated, and that decision belongs here rather than halfway through Phase 3
 
 ## Notes / Findings
