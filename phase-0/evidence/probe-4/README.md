@@ -1,6 +1,14 @@
 # Probe 4 — Deterministic hook blocking
 
-**Verdict: BLOCKED**
+> ## ⚠️ Superseded — this verdict was overturned
+>
+> **See [`reverify/README.md`](./reverify/README.md). Probe 4 is a PASS:** hooks do fire on the agent's own edit, the locked file is protected, and the agent receives `SPEC_OR_TEST_BLOCKED` while the run continues.
+>
+> The observation recorded below — that the CLI did not invoke the hook — was accurate. The conclusion drawn from it was not. Hooks at 0.186.0 are read from the `hooks` key in **`.factory/settings.json`** and are **not** read from `.factory/hooks.json`, the location this record used and the one the docs list as the project-scope primary. A `matcher: "*"` canary logged zero invocations from `hooks.json` and fired immediately from `settings.json`. The rig below had no canary, so "the `Edit` matcher did not fire" could not be distinguished from "no hook loaded at all."
+>
+> Kept unedited as the record of a wrong call and how it was caught. The re-verification also ran on macOS rather than the Linux cloud host below, so platform is a second difference between the two records.
+
+**Verdict: BLOCKED** — *superseded, see above*
 **CLI under test:** `droid` 0.186.0
 **Host:** `droid-cloud-computer-1st`
 **Branch:** `factory/probe-4-hook-blocking`
