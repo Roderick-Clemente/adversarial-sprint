@@ -103,7 +103,13 @@ This **overturns the earlier BLOCKED verdict**, which was caused by a config-loc
 
 **How to test:** Build a minimal plugin containing a Droid, a skill, and a hook. Install it clean and confirm which components activate without manual intervention.
 
-**Result:** _(unanswered)_
+**Result:** **PASS.** A minimal plugin carrying one droid, one skill, one command and one `PreToolUse` hook was published through a local marketplace and installed at project scope. **The hook, the droid and the skill all activate on install with no manual repo setup** — install wrote only `enabledPlugins` into the project's `.factory/settings.json` plus a cache copy under `~/.factory/plugins/cache/`. The design ships as one installable thing.
+
+The headline detail: **a plugin's `hooks/hooks.json` fires, even though a standalone project-scope `.factory/hooks.json` never does** (Probe 4). Same filename, two loaders, no diagnostic either way — so the reference guard can ship inside the plugin, but a developer testing it standalone in `.factory/hooks.json` will see nothing and draw the wrong conclusion, exactly as this repo's own Probe 4 did. Also confirmed: the plugin droid's `tools:` allowlist is enforced by **schema omission** (it reported no write tool existed), extending Probe 3's V9/V10 result from local to *distributed* droids.
+
+Three papercuts for the upstream report. `${DROID_PLUGIN_ROOT}` expands in the hook's `command` string but the environment variable handed to the script is the literal sentinel `/PLUGIN_ROOT_NOT_EXPANDED_ERROR`, so scripts must take the plugin root as an argument and never read it from the environment. A local marketplace is keyed by **directory basename**, not the `name` field in `marketplace.json`, and installing with the manifest name fails with a misleading `Run /marketplace add first`. And uninstall stops the hook but leaves `enabledPlugins: {}`, `extraKnownMarketplaces: {}` and a stale plugin cache behind — plugin operations mutate user-level config and do not fully clean up, so expect drift across install cycles. User config here was backed up and restored byte-identical.
+
+Untested and worth closing before relying on it: whether plugin hooks fire on a **subagent's** tool calls (the canary saw the parent's `Task` call, but the subagent made none of its own), remote git-marketplace install, `--scope user`, and the settings-driven `extraKnownMarketplaces` team rollout. Mission artifacts in plugins remain unanswerable while Probe 1 is BLOCKED. See [`evidence/probe-6/`](./evidence/probe-6/).
 
 ---
 

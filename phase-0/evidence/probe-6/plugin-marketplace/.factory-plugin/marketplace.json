@@ -1,0 +1,8 @@
+{
+  "name": "probe-mkt",
+  "description": "Local marketplace for Phase 0 probe 6",
+  "owner": { "name": "adversarial-sprint phase 0" },
+  "plugins": [
+    { "name": "probe-guard", "description": "Phase 0 probe plugin", "source": "./probe-guard" }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "probe-guard",
+  "description": "Phase 0 probe: minimal plugin carrying a droid, a skill, a command and a hook.",
+  "version": "0.1.0",
+  "author": { "name": "adversarial-sprint phase 0" },
+  "license": "MIT",
+  "keywords": ["probe"]
+}
