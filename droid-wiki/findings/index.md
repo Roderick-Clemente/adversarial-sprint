@@ -2,7 +2,7 @@
 
 What Phase 0 concluded, as distinct from what each individual probe measured. The [probe records](../probes/index.md) are the evidence; this section is the reading of it.
 
-Everything here is scoped to `droid` **0.186.0** on macOS.
+Everything here is scoped to `droid` **0.186.0** on macOS, with one deliberate exception: [Cross-version validation](./cross-version-validation.md) re-runs the primitives on **0.180.0** to separate what is a platform property from what is a property of one patch release.
 
 ## The verdict
 
@@ -39,6 +39,12 @@ Three invariants collapse into one `PreToolUse` hook of roughly thirty lines. It
 
 Consequence: the enforcement layer is one small, testable component rather than three mechanisms with three failure modes.
 
+## Confirmed at a second version
+
+[Cross-version validation](./cross-version-validation.md) re-ran the primitives on `droid` 0.180.0, six patch releases older. The plugin hook and the hash-locked test block both hold with no rescue modifications, so the enforcement layer is not a 0.186-only artifact.
+
+The comparison also reclassified one defect. `.factory/hooks.json` **works** at 0.180.0 and is silent at 0.186.0, which makes it a regression with a known-good prior version rather than a standing bug. A single-version finding cannot tell those apart.
+
 ## Secondary conclusions
 
 **Missions are not usable at this version.** `droid exec --mission` performs no work. The per-role model flags exist but are `--mission`-only, so they are unreachable. This forced the PRD §8 contingency and is what turns the plugin into a command-orchestrated state machine. It is not fatal: one `droid exec --model <id>` per role pins the model just as well, and it attributes cost per role for free because `usage.factory_credits` is per run.
@@ -55,7 +61,7 @@ Consequence: the enforcement layer is one small, testable component rather than 
 
 Found incidentally while probing something else. Tabulated with their probes in [Open questions](../background/open-questions.md).
 
-`droid exec --mission` is a no-op · `.factory/hooks.json` is never read · `-r xhigh` resolves to `off` · `DROID_PLUGIN_ROOT` arrives as a literal error sentinel · a marketplace registers under its directory basename rather than its manifest name · uninstall leaves configuration and cache residue.
+`droid exec --mission` is a no-op · `.factory/hooks.json` is never read *(a regression — it works at 0.180.0)* · `-r xhigh` resolves to `off` · `DROID_PLUGIN_ROOT` arrives as a literal error sentinel · a marketplace registers under its directory basename rather than its manifest name · uninstall leaves configuration and cache residue.
 
 ## What this section does not claim
 
@@ -65,6 +71,7 @@ Three probes are incomplete: #4 was never probed, #5 was never reached, and #7 i
 
 ## Related
 
+- [Cross-version validation](./cross-version-validation.md) — the same primitives at `droid` 0.180.0
 - [Probes](../probes/index.md) — the evidence these conclusions rest on
 - [Invariants](../method/invariants.md) — what is being enforced and why
 - [Open questions](../background/open-questions.md) — what is still unresolved
