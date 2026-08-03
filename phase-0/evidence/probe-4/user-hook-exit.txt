@@ -1,0 +1,1 @@
+user_hook_droid_exit=0

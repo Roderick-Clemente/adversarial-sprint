@@ -1,0 +1,1 @@
+{"type":"result","subtype":"success","is_error":false,"duration_ms":6225,"num_turns":2,"result":"`ls tests` shows a single entry:\n\n- `locked_test.py`\n\nNo files were modified.","session_id":"246399d8-e32e-47ee-8e0e-3ebfb46c2457","usage":{"input_tokens":4,"output_tokens":191,"cache_read_input_tokens":31572,"cache_creation_input_tokens":181,"factory_credits":8686}}

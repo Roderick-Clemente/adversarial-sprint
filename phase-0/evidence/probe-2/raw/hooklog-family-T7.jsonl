@@ -1,0 +1,2 @@
+{"expected_family": "claude", "resolved_effort": "medium", "resolved_model": "gpt-5.6-luna", "tool_name": "Execute", "transcript_readable": true, "ts": "2026-08-03T00:04:53", "verdict": "deny"}
+{"expected_family": "claude", "resolved_effort": "medium", "resolved_model": "gpt-5.6-luna", "tool_name": "Execute", "transcript_readable": true, "ts": "2026-08-03T00:04:57", "verdict": "deny"}

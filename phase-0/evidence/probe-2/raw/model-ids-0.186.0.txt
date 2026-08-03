@@ -1,0 +1,158 @@
+Available Models:
+  auto                         Auto Model
+  claude-fable-5               Fable 5
+  claude-opus-5                Opus 5 (default)
+  claude-opus-5-fast           Opus 5 Fast Mode
+  claude-opus-4-8              Opus 4.8
+  claude-opus-4-8-fast         Opus 4.8 Fast Mode
+  claude-opus-4-7              Opus 4.7
+  claude-opus-4-6              Opus 4.6
+  claude-opus-4-5-20251101     Opus 4.5
+  claude-sonnet-5              Sonnet 5
+  claude-sonnet-4-6            Sonnet 4.6
+  claude-sonnet-4-5-20250929   Sonnet 4.5
+  claude-haiku-4-5-20251001    Haiku 4.5
+  gpt-5.6-sol                  GPT-5.6 Sol
+  gpt-5.6-terra                GPT-5.6 Terra
+  gpt-5.6-luna                 GPT-5.6 Luna
+  gpt-5.5                      GPT-5.5
+  gpt-5.5-fast                 GPT-5.5 Fast Mode
+  gpt-5.5-pro                  GPT-5.5 Pro
+  gpt-5.4                      GPT-5.4
+  gpt-5.4-fast                 GPT-5.4 Fast Mode
+  gpt-5.4-mini                 GPT-5.4 Mini
+  gpt-5.3-codex                GPT-5.3-Codex
+  gpt-5.3-codex-fast           GPT-5.3-Codex Fast Mode
+  gpt-5.2                      GPT-5.2
+  gemini-3.1-pro-preview       Gemini 3.1 Pro
+  gemini-3.5-flash             Gemini 3.5 Flash
+  gemini-3-flash-preview       Gemini 3 Flash
+  glm-5.2                      GLM-5.2 (Droid Core)
+  glm-5.2-fast                 GLM-5.2 Fast (Droid Core)
+  kimi-k3                      Kimi K3 (Droid Core)
+  kimi-k2.7-code               Kimi K2.7 Code (Droid Core)
+  kimi-k2.6                    Kimi K2.6 (Droid Core)
+  nemotron-3-ultra             Nemotron 3 Ultra (Droid Core)
+  deepseek-v4-pro              DeepSeek V4 Pro (Droid Core)
+  minimax-m3                   MiniMax M3 (Droid Core)
+  minimax-m2.7                 MiniMax M2.7 (Droid Core)
+  minimax-m2.5                 MiniMax M2.5 (Droid Core)
+  grok-4.5                     Grok 4.5
+
+Model details:
+  - Auto Model: supports reasoning: No; supported: [none]; default: none
+  - Fable 5: supports reasoning: Yes; supported: [off, low, medium, high, xhigh, max]; default: high
+  - Opus 5: supports reasoning: Yes; supported: [off, low, medium, high, xhigh, max]; default: high
+  - Opus 5 Fast Mode: supports reasoning: Yes; supported: [off, low, medium, high, xhigh, max]; default: high
+  - Opus 4.8: supports reasoning: Yes; supported: [off, low, medium, high, xhigh, max]; default: high
+  - Opus 4.8 Fast Mode: supports reasoning: Yes; supported: [off, low, medium, high, xhigh, max]; default: high
+  - Opus 4.7: supports reasoning: Yes; supported: [off, low, medium, high, xhigh, max]; default: high
+  - Opus 4.6: supports reasoning: Yes; supported: [off, low, medium, high, max]; default: high
+  - Opus 4.5: supports reasoning: Yes; supported: [off, low, medium, high]; default: off
+  - Sonnet 5: supports reasoning: Yes; supported: [off, low, medium, high, xhigh, max]; default: high
+  - Sonnet 4.6: supports reasoning: Yes; supported: [off, low, medium, high, max]; default: high
+  - Sonnet 4.5: supports reasoning: Yes; supported: [off, low, medium, high]; default: off
+  - Haiku 4.5: supports reasoning: Yes; supported: [off, low, medium, high]; default: off
+  - GPT-5.6 Sol: supports reasoning: Yes; supported: [none, low, medium, high, xhigh, max]; default: medium
+  - GPT-5.6 Terra: supports reasoning: Yes; supported: [none, low, medium, high, xhigh, max]; default: medium
+  - GPT-5.6 Luna: supports reasoning: Yes; supported: [none, low, medium, high, xhigh, max]; default: medium
+  - GPT-5.5: supports reasoning: Yes; supported: [low, medium, high, xhigh]; default: medium
+  - GPT-5.5 Fast Mode: supports reasoning: Yes; supported: [low, medium, high, xhigh]; default: medium
+  - GPT-5.5 Pro: supports reasoning: Yes; supported: [medium, high, xhigh]; default: medium
+  - GPT-5.4: supports reasoning: Yes; supported: [low, medium, high, xhigh]; default: medium
+  - GPT-5.4 Fast Mode: supports reasoning: Yes; supported: [low, medium, high, xhigh]; default: medium
+  - GPT-5.4 Mini: supports reasoning: Yes; supported: [low, medium, high, xhigh]; default: high
+  - GPT-5.3-Codex: supports reasoning: Yes; supported: [low, medium, high, xhigh]; default: medium
+  - GPT-5.3-Codex Fast Mode: supports reasoning: Yes; supported: [low, medium, high, xhigh]; default: medium
+  - GPT-5.2: supports reasoning: Yes; supported: [off, low, medium, high, xhigh]; default: low
+  - Gemini 3.1 Pro: supports reasoning: Yes; supported: [low, medium, high]; default: high
+  - Gemini 3.5 Flash: supports reasoning: Yes; supported: [minimal, low, medium, high]; default: high
+  - Gemini 3 Flash: supports reasoning: Yes; supported: [minimal, low, medium, high]; default: high
+  - GLM-5.2 (Droid Core): supports reasoning: Yes; supported: [off, high, max]; default: high
+  - GLM-5.2 Fast (Droid Core): supports reasoning: Yes; supported: [off, high, max]; default: high
+  - Kimi K3 (Droid Core): supports reasoning: Yes; supported: [off, low, high, max]; default: high
+  - Kimi K2.7 Code (Droid Core): supports reasoning: Yes; supported: [off, high]; default: high
+  - Kimi K2.6 (Droid Core): supports reasoning: Yes; supported: [off, high]; default: high
+  - Nemotron 3 Ultra (Droid Core): supports reasoning: Yes; supported: [off, high]; default: high
+  - DeepSeek V4 Pro (Droid Core): supports reasoning: Yes; supported: [off, low, high, max]; default: high
+  - MiniMax M3 (Droid Core): supports reasoning: Yes; supported: [high]; default: high
+  - MiniMax M2.7 (Droid Core): supports reasoning: Yes; supported: [high]; default: high
+  - MiniMax M2.5 (Droid Core): supports reasoning: Yes; supported: [low, medium, high]; default: high
+  - Grok 4.5: supports reasoning: Yes; supported: [low, medium, high]; default: high
+
+Authentication:
+  Create an API key: https://app.factory.ai/settings/api-keys
+
+  Setting API key examples:
+    macOS/Linux:
+      export FACTORY_API_KEY=fk-... && droid exec "fix the bug"
+    Windows (PowerShell):
+      $env:FACTORY_API_KEY="fk-..." ; droid exec "fix the bug"
+    Windows (CMD):
+      set FACTORY_API_KEY=fk-... && droid exec "fix the bug"
+
+  Note: Keep your API key secret. Do not commit it to source control.
+
+Examples:
+  # DEFAULT (no flags) - Read-only mode for planning and analysis
+  droid exec "Analyze the authentication system and create a detailed plan for migrating from session-based auth to OAuth2"
+  droid exec "Review the codebase for security vulnerabilities and generate a prioritized list of improvements"
+  droid exec "Analyze the project architecture and create a dependency graph"
+
+  # --auto low - Safe file operations
+  droid exec --auto low "add JSDoc comments to all functions"
+  droid exec --auto low "fix typos in README.md"
+  droid exec --auto low "format all Python files with black"
+
+  # --auto medium - Development tasks
+  droid exec --auto medium "install deps, run tests, fix issues"
+  droid exec --auto medium "update packages and resolve conflicts"
+  droid exec --auto medium "set up the development environment and run the test suite"
+
+  # Tool discovery and overrides
+  droid exec --list-tools
+  droid exec --model gpt-5 --list-tools --output-format json
+  droid exec --enabled-tools ApplyPatch "refactor files without raising autonomy"
+  droid exec --additional-tools ApplyPatch "refactor files while keeping default tools"
+  droid exec --auto medium --disabled-tools execute-cli "run edits without executing shell commands"
+
+  # Using custom models
+  droid exec --model custom:deepseek-v3 "analyze this code"
+  droid exec --auto medium --model custom:qwen-turbo "implement this feature"
+
+  # --auto high - Production operations
+  droid exec --auto high "fix bug, test, commit, and push to main"
+  droid exec --auto high "deploy to staging after running tests"
+  droid exec --auto high "run database migration and update production config"
+
+  # --mission - Multi-agent mission orchestration
+  droid exec --mission --skip-permissions-unsafe "Build a full authentication system with OAuth2"
+  droid exec --mission --auto high "Refactor the database layer to use connection pooling"
+  droid exec --mission --auto high --model gpt-5 "Add comprehensive test coverage for the API layer"
+
+  # --mission with per-run worker / validator model overrides
+  droid exec --mission --auto high \
+    --model claude-opus-4-6 \
+    --worker-model claude-opus-4-6 --worker-reasoning-effort medium \
+    --validator-model gpt-5 --validator-reasoning-effort high \
+    "Refactor the auth system"
+
+  # File input with different autonomy levels
+  droid exec -f requirements.md
+  droid exec -f task.md --auto low
+  cat prompt.txt | droid exec --auto medium
+  echo "analyze code" | droid exec
+
+  # Session continuation (preserves context, no message replay)
+  droid exec -s <session-id> "continue previous task"
+  droid exec -s <session-id> "what did we discuss?"
+  droid exec --fork <session-id> "take a different approach from here"
+
+  # --skip-permissions-unsafe - Only in isolated environments!
+  # In a Docker container:
+  docker run --rm -v $(pwd):/workspace alpine:latest sh -c "
+    droid exec --skip-permissions-unsafe 'Install system deps, modify configs, run tests'"
+
+  # In ephemeral CI/CD runner:
+  droid exec --skip-permissions-unsafe "Modify /etc/hosts, install kernel modules, reset network"
+

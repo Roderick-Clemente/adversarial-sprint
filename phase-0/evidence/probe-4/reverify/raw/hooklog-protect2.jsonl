@@ -1,0 +1,2 @@
+{"saw_command": true, "saw_file_path": false, "session_id": "9c84ab42-4fd7-4610-8ca6-0b20efd7112f", "tool_name": "Execute", "ts": "2026-08-02T23:48:51", "verdict": "allow", "why": null}
+{"saw_command": true, "saw_file_path": false, "session_id": "9c84ab42-4fd7-4610-8ca6-0b20efd7112f", "tool_name": "Execute", "ts": "2026-08-02T23:49:01", "verdict": "deny", "why": "shell command references the locked test path"}

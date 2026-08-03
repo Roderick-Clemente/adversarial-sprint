@@ -1,0 +1,14 @@
+All stderr captures for these runs were empty (0 bytes). Verified:
+  0 bytes  executor-run.stderr
+  0 bytes  executor2-run.stderr
+  0 bytes  v1-isolation-default.stderr
+  0 bytes  V10-control-no-tools-key.stderr
+  0 bytes  v2a-isolation-seek-exec.stderr
+  0 bytes  v2b-isolation-seek-noexec.stderr
+  0 bytes  V3-write.stderr
+  0 bytes  V4-write.stderr
+  0 bytes  V5-write.stderr
+  0 bytes  V6-write-noPersona.stderr
+  0 bytes  V7-write-noPersona.stderr
+  0 bytes  V8-subagent.stderr
+  0 bytes  V9-subagent-permissive-parent.stderr

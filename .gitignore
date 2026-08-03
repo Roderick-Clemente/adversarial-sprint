@@ -8,3 +8,6 @@ node_modules/
 # instead — see phase-0/evidence/README.md. PRD §9 permits a configured artifact
 # path, so nothing here needs to be un-ignored.
 .factory/
+
+# Async steering channel for agent runs. Live control input, not part of the record.
+STEER.md

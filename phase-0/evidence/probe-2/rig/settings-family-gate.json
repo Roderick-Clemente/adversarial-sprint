@@ -1,0 +1,3 @@
+{ "hooks": { "PreToolUse": [
+  { "matcher": "*",
+    "hooks": [ { "type": "command", "command": "EXPECT_FAMILY=claude python3 /tmp/probe-2/hook-family-gate.py", "timeout": 10 } ] } ] } }

@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "*",
+        "hooks": [ { "type": "command", "command": "python3 /tmp/probe-4/hook-canary.py", "timeout": 10 } ] },
+      { "matcher": "Edit|Create|ApplyPatch",
+        "hooks": [ { "type": "command", "command": "python3 /tmp/probe-4/hook-protect.py", "timeout": 10 } ] }
+    ]
+  }
+}

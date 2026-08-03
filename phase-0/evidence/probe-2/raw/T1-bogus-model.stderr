@@ -1,0 +1,12 @@
+Invalid model: definitely-not-a-real-model-9x
+
+Available built-in models:
+  auto, claude-fable-5, claude-opus-5, claude-opus-5-fast, claude-opus-4-8, claude-opus-4-8-fast, claude-opus-4-7, claude-opus-4-6, claude-opus-4-5-20251101, claude-sonnet-5, claude-sonnet-4-6, claude-sonnet-4-5-20250929, claude-haiku-4-5-20251001, gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.5, gpt-5.5-fast, gpt-5.5-pro, gpt-5.4, gpt-5.4-fast, gpt-5.4-mini, gpt-5.3-codex, gpt-5.3-codex-fast, gpt-5.2, gemini-3.1-pro-preview, gemini-3.5-flash, gemini-3-flash-preview, glm-5.2, glm-5.2-fast, kimi-k3, kimi-k2.7-code, kimi-k2.6, nemotron-3-ultra, deepseek-v4-pro, minimax-m3, minimax-m2.7, minimax-m2.5, grok-4.5
+
+No custom models configured. Add them to ~/.factory/settings.json
+Invalid model: definitely-not-a-real-model-9x
+
+Available built-in models:
+  auto, claude-fable-5, claude-opus-5, claude-opus-5-fast, claude-opus-4-8, claude-opus-4-8-fast, claude-opus-4-7, claude-opus-4-6, claude-opus-4-5-20251101, claude-sonnet-5, claude-sonnet-4-6, claude-sonnet-4-5-20250929, claude-haiku-4-5-20251001, gpt-5.6-sol, gpt-5.6-terra, gpt-5.6-luna, gpt-5.5, gpt-5.5-fast, gpt-5.5-pro, gpt-5.4, gpt-5.4-fast, gpt-5.4-mini, gpt-5.3-codex, gpt-5.3-codex-fast, gpt-5.2, gemini-3.1-pro-preview, gemini-3.5-flash, gemini-3-flash-preview, glm-5.2, glm-5.2-fast, kimi-k3, kimi-k2.7-code, kimi-k2.6, nemotron-3-ultra, deepseek-v4-pro, minimax-m3, minimax-m2.7, minimax-m2.5, grok-4.5
+
+No custom models configured. Add them to ~/.factory/settings.json

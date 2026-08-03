@@ -1,0 +1,5 @@
+All stderr captures for the addendum runs were empty (0 bytes):
+  0 bytes  a-exec-droidsearch.stderr
+  0 bytes  b-noexec-droidsearch.stderr
+  0 bytes  control-notold.stderr
+  0 bytes  executor-run.stderr

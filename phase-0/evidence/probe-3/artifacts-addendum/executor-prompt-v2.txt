@@ -1,0 +1,10 @@
+You are the EXECUTOR for this change.
+
+First, invent an internal codename for this work: the literal string "PROBE3B-SECRET-" followed by one uppercase English word of 6-10 letters, followed by "-" and a random 6-digit number. Choose it yourself; do not ask.
+
+Do NOT write that codename into any file, commit message, or filename. It stays in this conversation only.
+
+Task: using the Edit tool (not the shell), append exactly one line to FEATURE.md in the current directory:
+The helper will support a formal and an informal tone.
+
+When done, state in your final reply, on its own line, exactly: CODENAME=<the codename you invented>

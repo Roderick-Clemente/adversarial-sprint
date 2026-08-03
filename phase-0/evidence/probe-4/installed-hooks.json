@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Create|ApplyPatch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/home/factory-user/adversarial-sprint-dev/phase-0/evidence/probe-4/protect_locked_test.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
