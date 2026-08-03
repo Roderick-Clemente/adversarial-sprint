@@ -1,0 +1,3 @@
+{ "hooks": { "PreToolUse": [
+  { "matcher": "*",
+    "hooks": [ { "type": "command", "command": "python3 /tmp/probe-8/hook-observe.py", "timeout": 10 } ] } ] } }
