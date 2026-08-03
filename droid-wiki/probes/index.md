@@ -4,6 +4,8 @@ Phase 0 of this repository is a **build gate**. Nothing in Phase 1 starts until 
 
 A probe is not a design document. It is an experiment against a specific version of the Factory `droid` CLI that either demonstrates a capability the [invariants](../method/invariants.md) depend on, or demonstrates its absence. Two of the eight overturned an assumption the spec was resting on, and one of those overturned an earlier probe of its own.
 
+A probe is also a **Phase-0-only device**: one feasibility question aimed at the platform, used solely to decide the build gate. Later phases deliver vertical slices measured against exit criteria, not probes, so nothing after Phase 0 will be recorded this way. See the [Roadmap](../overview/index.md#roadmap) for the arc these eight sit at the front of.
+
 Everything below is scoped to `droid` **0.186.0** on macOS (darwin 24.6.0), with `~/Work/QuantumBank` as the pilot repo. A CLI upgrade invalidates these results until the probes are re-run, and a capability that appears or disappears between versions is itself a finding worth recording rather than a silent correction.
 
 ## The evidence standard

@@ -17,9 +17,32 @@ Four properties carry the method, and all four are meant to be enforced rather t
 
 The full set of eight runtime invariants is in [Invariants](../method/invariants.md).
 
+## Roadmap
+
+The north star is a **replayable demo of the method on one bounded pilot change**, with the manual harness at Phase 0.5 as the honest comparison arm.
+
+| Phase | What it delivers | Status |
+|---|---|---|
+| **0 — Feasibility spike** | Eight probes and a go/no-go on Factory capabilities | **Done, GO** |
+| **0.5 — Manual baseline harness** | The smallest honest two-CLI harness; the §13 comparison arm and Act 1 of the demo | Not started |
+| **1 — Test-evidence slice** | Valid-RED classification, test locking, RED → GREEN on the pilot | Not started |
+| **2 — Adversarial planning slice** | Blind plan review, bounded reconciliation, human decision packets | Not started |
+| **3 — Factory end-to-end** | The full loop on one pilot change, plus a replayable demo and the baseline comparison | Not started |
+| **4 — Generalize** | A second stack and a portable Claude/Codex runtime | Not started |
+
+**Only Phase 0 has been built.** Everything from 0.5 onward is specified in `PRD.md` §11 and has not been started. No code exists for any of it, and the repository contains no partial implementation of a later phase.
+
+Each phase carries written exit criteria in `PRD.md` §11. A phase is finished when those are met, not when it looks finished, which is the same standard the probe records hold themselves to.
+
+Phase 0.5 is the one most easily misread as optional. It is the baseline arm the §13 evaluation already requires, and the PRD is explicit that it must not be strawmanned: if a two-CLI shell harness turns out to be nearly as good as the plugin, that is a finding worth having before a demo rather than during one.
+
+> Not to be confused with the sprint method's own three phases, GROK, CHUNK and EXECUTE, which are stages *within* a single sprint rather than stages of this project. Those are described in [Workflow](../method/workflow.md) and [Sprint template](../method/sprint-template.md).
+
 ## Current status
 
 **Phase 0 is complete and the verdict is GO, with one mandatory design change:** build it command-orchestrated rather than Mission-native. See `phase-0/GO-NO-GO.md`, summarised in [Findings](../findings/index.md).
+
+A probe is a **Phase-0-only device**: one feasibility question aimed at the platform, used solely to decide the build gate. Later phases deliver vertical slices measured against exit criteria, not probes. The project is not made of probes, and the eight below are scaffolding for the decision rather than the product.
 
 | Probe | Question | Verdict |
 |---|---|---|
@@ -49,6 +72,7 @@ That failure mode is documented in [Silent green](../findings/silent-green.md), 
 
 | If you want to | Read |
 |---|---|
+| See where the project is going | [Roadmap](#roadmap), then `PRD.md` §11 for exit criteria |
 | Understand the method being packaged | [Method](../method/index.md) → [Workflow](../method/workflow.md) |
 | Know what the platform can actually enforce | [Findings](../findings/index.md) |
 | Re-run a probe and check a claim yourself | [Getting started](./getting-started.md) |

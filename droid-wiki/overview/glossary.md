@@ -60,7 +60,11 @@ Terms as this repository uses them. Where a term has a common industry meaning t
 
 ## Repository conventions
 
-**Probe** — a bounded feasibility experiment against the installed Factory version, recorded with commands, exit codes, raw output, and a reproduction script. Eight exist; see [Probes](../probes/index.md).
+**Probe** — a bounded feasibility experiment against the installed Factory version, recorded with commands, exit codes, raw output, and a reproduction script. A probe is a **Phase-0-only device**: one feasibility question aimed at the platform, used solely to decide the build gate. Later phases deliver vertical slices measured against exit criteria, not probes. Eight exist; see [Probes](../probes/index.md) and the [Roadmap](./index.md#roadmap).
+
+**Phase** — ambiguous here, so check which is meant. The **delivery phases** (0, 0.5, 1, 2, 3, 4) are the project's arc, defined in `PRD.md` §11 and summarised in the [Roadmap](./index.md#roadmap). The **sprint phases** (GROK, CHUNK, EXECUTE) are stages within a single sprint run, defined in `templates/SPRINT-PLANNING-TEMPLATE.md`. The sprint template numbers its own phases 1 to 3, which collide with delivery phases 1 to 3 and mean something different.
+
+**Vertical slice** — the unit of delivery from Phase 1 onward: a thin path through the whole system producing demonstrable behavior, rather than a horizontal layer. Judged against written exit criteria in `PRD.md` §11.
 
 **Silent green** — this repository's name for the platform's default failure mode: a failed or degraded operation reporting success at exit 0. Four independent instances found. See [Silent green](../findings/silent-green.md).
 
