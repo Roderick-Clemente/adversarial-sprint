@@ -15,7 +15,7 @@ Every answer below is scoped to this environment. A probe result recorded withou
 | Factory CLI (`droid --version`) | **0.186.0** |
 | Host | macOS (darwin 24.6.0), case-sensitive filesystem |
 | Pilot repo | `~/Work/QuantumBank` |
-| First probed | _(record on first probe)_ |
+| First probed | 2026-08-02 |
 
 **Re-verify after any CLI upgrade.** A capability that appears or disappears between versions is itself a finding worth recording rather than a silent correction.
 
@@ -35,7 +35,7 @@ Each **Result** below should end with a link to its evidence directory. A result
 
 **How to test:** Configure a Mission with distinct worker and validator model settings. Confirm via `droid exec --mission` flags and mission model settings that each role resolves to the model you specified.
 
-**Result:** _(unanswered)_
+**Result:** **BLOCKED — not reached.** `droid exec --mission` appears to be a no-op at 0.186.0: zero turns, zero tokens, zero credits, exit 0, on a plain invocation with no worker/validator flags. Pinning cannot be tested through a surface that does not execute, and a pass would be vacuous. Also blocks Probes 5 and 7. Raw capture still outstanding, and one benign explanation is not yet ruled out — see [`evidence/probe-1/`](./evidence/probe-1/).
 
 ---
 
@@ -83,7 +83,7 @@ Each **Result** below should end with a link to its evidence directory. A result
 
 **How to test:** Construct a Mission where the validator stage rejects. Observe whether the Mission can loop back to a prior stage, or whether it terminates and requires external re-invocation.
 
-**Result:** _(unanswered)_
+**Result:** _(unanswered)_ — likely blocked by the Probe 1 finding, since the scenario requires a Mission that executes. Pending confirmation of that finding. If it holds, §8's command-orchestrated contingency is triggered.
 
 ---
 
@@ -107,7 +107,7 @@ Each **Result** below should end with a link to its evidence directory. A result
 
 **How to test:** Run one Mission with mixed models. Check whether usage data and OpenTelemetry traces can be correlated back to individual role invocations.
 
-**Result:** _(unanswered)_
+**Result:** _(unanswered)_ — likely blocked by the Probe 1 finding; a zero-credit run attributes nothing. Pending confirmation. Recall that a "no" here removes H3 from the §13 evaluation entirely.
 
 ---
 
