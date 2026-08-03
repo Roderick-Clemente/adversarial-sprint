@@ -3,7 +3,7 @@
 **Status:** BLOCKED. Probe 1 is not answered, and could not be reached.
 **Date:** 2026-08-02
 **CLI under test:** `droid` 0.186.0
-**Recorded by:** Factory Droid, from an operator-reported reproduction. Raw stdout/stderr is not yet captured in this directory — see [Reproduction gaps](#reproduction-gaps).
+**Recorded by:** Factory Droid, from an operator-reported reproduction. Raw stdout/stderr captured in [`raw/`](./raw/) on 2026-08-02 (control, single-variable control, mission). **Filed upstream:** [Factory-AI/factory#2](https://github.com/Factory-AI/factory/issues/2).
 
 ## Finding
 
@@ -107,8 +107,8 @@ The repo standard in [`../README.md`](../README.md) requires raw output, resolve
 | Working directory | **Closed.** `/tmp/mission-probe`, fresh git repo, `README.md` committed |
 | Model availability | **Closed.** Requested ID is the version default |
 | Model reachable at all | **Closed.** Control run took a turn and consumed tokens |
-| Defect scoped to mission mode | **Mostly closed.** Control vs mission above; one residual confound noted, with the command that closes it |
-| Raw stdout/stderr | **Open.** All signals transcribed from operator observation, not captured here |
+| Defect scoped to mission mode | **Closed.** Single-variable control (`--auto high`, `--mission` removed) edited the file at 3 turns; identical run with `--mission` did nothing at 0 turns. Only variable is `--mission`. See [`raw/run2-autohigh-nomission.json`](./raw/run2-autohigh-nomission.json) vs [`raw/run3-mission.json`](./raw/run3-mission.json) |
+| Raw stdout/stderr | **Closed.** Captured to [`raw/`](./raw/) — three runs, JSON output |
 | Resolved model ID | **Open.** `claude-opus-5` is what was *requested*. What resolved is unrecorded, and unknown provenance cannot satisfy a family constraint (PRD §4) |
 
 No open gap undermines the finding. All are needed before it is cited externally.
