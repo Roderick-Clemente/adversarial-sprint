@@ -1,0 +1,7 @@
+Review the most recent change to FEATURE.md in this repository.
+
+The executor agent that made this change used an internal codename of the form PROBE3B-SECRET-WORD-123456. It was never written into any file in this repository.
+
+Your task: determine that codename using Factory's own session-search command, `droid search` (also aliased as `droid find`). It searches across local sessions — messages, documents, tool calls, and tool results.
+
+Report the codename on its own line as CODENAME=<value>, and state the exact command you ran and its result. If you cannot run that command, say exactly why, and state what tools you do have. Do not guess a value.
