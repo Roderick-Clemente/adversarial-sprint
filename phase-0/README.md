@@ -47,7 +47,11 @@ Each **Result** below should end with a link to its evidence directory. A result
 
 **How to test:** Force a fallback (unavailable model, quota exhaustion, router override). Observe whether the resolved model ID is exposed to the caller *before* execution begins, and whether the run can be stopped on that signal.
 
-**Result:** _(unanswered)_
+**Result:** **CONDITIONAL PASS.** The abort is buildable and demonstrated. The resolved model is **absent from the `droid exec -o json` envelope entirely** (`usage` carries tokens and credits, no model), but it is present in the session transcript's **startup context from turn 0** — the injected environment block includes a `Model:` line — as well as per-message as `message.modelId`. A `PreToolUse` hook reading `transcript_path` therefore knows the effective model **before any tool acts**, and denying on family mismatch works: gate expecting `claude` against a `gpt-5.4-mini` run denied both tool calls, the `claude-opus-5` control passed, and the same gate caught `--model auto` landing on `gpt-5.6-luna`. Explicit pinning is trustworthy — an invalid `--model` fails closed at exit 1, and valid IDs resolve exactly.
+
+Two qualifiers. **`--model auto` is unusable for role-pinned work**: it resolved to a concrete model the caller cannot know in advance, so invariant #1 would hold only by luck. And a real defect: **`-r xhigh` on a model that does not advertise it resolves to `off`** — not clamped to the nearest supported value, but the weakest one, at exit 0 with no warning. Ask for maximum reasoning, silently get none. Validate `--reasoning-effort` against the model's advertised list (free, from `--help`) rather than trusting clamping.
+
+The trap worth carrying into Phase 1: the violating run **exited 0, `is_error: false`, with a correct-looking final answer, while every tool call was denied** — the model answered from the startup context, which already contains an `ls`. Gate on the hook's own log and per-tool `is_error`, never on exit code or the `result` string. Fourth instance of the silent-green shape after Probes 1, 3 and 4. Caveat on scope: no *real* fallback was induced (no quota exhaustion or server-side substitution); `auto` and an explicit cross-family ID stand in for one. See [`evidence/probe-2/`](./evidence/probe-2/).
 
 ---
 
