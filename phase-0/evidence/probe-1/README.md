@@ -3,14 +3,15 @@
 **Status:** BLOCKED. Probe 1 is not answered, and could not be reached.
 **Date:** 2026-08-02
 **CLI under test:** `droid` 0.186.0
-**Recorded by:** Factory Droid, from an operator-reported reproduction. See [Reproduction gaps](#reproduction-gaps) — raw output is not yet captured in this directory.
+**Recorded by:** Factory Droid, from an operator-reported reproduction. Raw stdout/stderr is not yet captured in this directory — see [Reproduction gaps](#reproduction-gaps).
 
 ## Finding
 
-`droid exec --mission` appears to be a no-op at 0.186.0. Invoked without worker or validator flags, it returns success having done nothing.
+`droid exec --mission` performs no work and reports success at 0.186.0.
 
 ```
-droid exec --mission --auto high --model claude-opus-5
+cd /tmp/mission-probe          # fresh git repo, README.md committed
+droid exec --mission --auto high --model claude-opus-5 "Add a one-line comment to README.md"
 ```
 
 | Signal | Observed |
@@ -20,7 +21,20 @@ droid exec --mission --auto high --model claude-opus-5
 | `credits` | 0 |
 | exit code | 0 |
 
-No worker or validator model flags were involved. This is the plainest possible mission invocation, which is what makes it a blocker rather than a configuration error on our side.
+A concrete, achievable task was supplied as a positional prompt, in a real git repository, at the autonomy level required to perform it. Zero turns followed, and the process exited successfully.
+
+No worker or validator model flags were involved. This is the plainest mission invocation that could be expected to do something, which is what makes it a blocker rather than a misconfiguration on our side.
+
+### The empty-invocation explanation is ruled out
+
+`droid exec --help` declares the prompt as an *optional* positional (`droid exec [options] [prompt]`), so a prompt-less invocation is legal and would be an unremarkable reason to see zero turns. That is not what happened here: a prompt was present, the working directory was a git repo with a committed `README.md`, and `--auto high` cleared the permission tier needed to edit it. The benign reading does not survive the actual invocation.
+
+### Two details from the CLI contract
+
+- **`--model claude-opus-5` was a no-op.** `-m, --model` already defaults to `claude-opus-5` at 0.186.0. The requested model was the default, not an unusual or possibly-unavailable ID, which removes model resolution failure as an explanation for zero turns.
+- **The per-role pinning flags exist.** `--worker-model`, `--validator-model`, and matching `--*-reasoning-effort` options are present and documented as "only valid with `--mission`". So Probe 1's surface *is* expressible on this version. What is untested is whether those flags resolve to the models named, because the mission that would exercise them does not run.
+
+That distinction is the accurate summary of Probe 1 right now: **the surface exists; it could not be exercised.**
 
 ## Why this does not answer Probe 1
 
@@ -34,7 +48,7 @@ Three probes route through a working Mission, and all three are blocked by the s
 
 | Probe | Dependency on Missions | Effect |
 |---|---|---|
-| 1 — per-role pinning | Mission worker/validator model settings | Cannot test through this surface |
+| 1 — per-role pinning | Mission worker/validator model settings | Flags exist, cannot be exercised |
 | 5 — rejection routing | A Mission with a validator stage that rejects | Cannot construct the scenario |
 | 7 — usage attribution | One Mission run with mixed models | Zero-credit run attributes nothing |
 
@@ -56,18 +70,22 @@ This is worth raising with Factory independently of whether this project continu
 
 ## Reproduction gaps
 
-The repo standard in [`../README.md`](../README.md) requires raw output, resolved model IDs, and a re-runnable record. This record does not yet meet it. Outstanding:
+The repo standard in [`../README.md`](../README.md) requires raw output, resolved model IDs, and a re-runnable record. This record does not yet meet it.
 
-- **No raw stdout/stderr.** The four signals above are transcribed from an operator observation, not captured here. Attach the raw JSON result.
-- **No resolved model ID.** `claude-opus-5` is the *requested* model. What actually resolved is unknown, and unknown provenance cannot satisfy a family constraint (PRD §4).
-- **Working directory not recorded.** Mission behavior may depend on repo context; unknown whether this was run inside a repo.
-- **Prompt handling unclear.** The command as recorded carries no prompt argument. Whether one was supplied by stdin, by a mission config file, or not at all is undetermined, and "no prompt" would be an ordinary explanation for zero turns rather than a bug.
+| Gap | Status |
+|---|---|
+| Prompt handling | **Closed.** Positional prompt supplied, quoted above |
+| Working directory | **Closed.** `/tmp/mission-probe`, fresh git repo, `README.md` committed |
+| Model availability | **Closed.** Requested ID is the version default |
+| Raw stdout/stderr | **Open.** Four signals transcribed from operator observation, not captured here |
+| Resolved model ID | **Open.** `claude-opus-5` is what was *requested*. What resolved is unrecorded, and unknown provenance cannot satisfy a family constraint (PRD §4) |
 
-That last gap is the one that could overturn the finding. Resolve it before this is cited anywhere.
+Neither open gap undermines the finding. Both are needed before it is cited externally.
 
 ## Next
 
-1. Re-run with output captured to this directory, working directory and prompt handling recorded explicitly.
-2. Settle the no-prompt question. If a prompt was supplied and turns were still zero, the finding stands and hardens.
-3. If it stands, treat PRD §8's Probe 5 contingency as triggered and decide the Mission-native vs command-orchestrated branch at the Phase 0 gate.
-4. Continue with Probe 4, which this does not block.
+1. **Re-run with raw output captured** to this directory, recording the resolved model ID rather than the requested one.
+2. **Assert on the side effect, not the counter.** The strongest evidence here is that `README.md` was never modified. That is an observable outcome, which is the standard the PRD holds executors to; `numTurns: 0` is the system reporting on itself.
+3. **Isolate mission mode.** Run the identical prompt, cwd, and autonomy level *without* `--mission`. If plain `droid exec` completes the edit and the mission variant does not, the defect is mission-specific and the finding hardens to its strongest form. If both no-op, the problem is broader than Missions and Probe 4 planning should account for it.
+4. If it holds, treat PRD §8's Probe 5 contingency as triggered and decide the Mission-native vs command-orchestrated branch at the Phase 0 gate.
+5. Continue with Probe 4, which this does not block.

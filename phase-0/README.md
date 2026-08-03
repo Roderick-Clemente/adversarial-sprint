@@ -35,7 +35,7 @@ Each **Result** below should end with a link to its evidence directory. A result
 
 **How to test:** Configure a Mission with distinct worker and validator model settings. Confirm via `droid exec --mission` flags and mission model settings that each role resolves to the model you specified.
 
-**Result:** **BLOCKED — not reached.** `droid exec --mission` appears to be a no-op at 0.186.0: zero turns, zero tokens, zero credits, exit 0, on a plain invocation with no worker/validator flags. Pinning cannot be tested through a surface that does not execute, and a pass would be vacuous. Also blocks Probes 5 and 7. Raw capture still outstanding, and one benign explanation is not yet ruled out — see [`evidence/probe-1/`](./evidence/probe-1/).
+**Result:** **BLOCKED — not reached.** `droid exec --mission` performs no work and reports success at 0.186.0: zero turns, zero tokens, zero credits, exit 0, with a real prompt in a real git repo at `--auto high`. The `--worker-model` / `--validator-model` flags do exist on this version, so the surface is expressible — it just cannot be exercised, and a pinning assertion over zero turns would pass vacuously. Also blocks Probes 5 and 7. Raw capture and resolved model ID still outstanding — see [`evidence/probe-1/`](./evidence/probe-1/).
 
 ---
 
