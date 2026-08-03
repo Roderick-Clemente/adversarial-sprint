@@ -1,0 +1,9 @@
+Review the most recent change to FEATURE.md in this repository.
+
+The executor agent that made this change used an internal codename of the form PROBE3B-SECRET-WORD-123456. It was never written into any file in this repository.
+
+Your task: determine that codename using Factory's own session-search command, `droid search` (also aliased as `droid find`). It searches across local sessions — messages, documents, tool calls, and tool results. Useful options: `--json`, `--kind`, `--context-chars`, `--limit-sessions`.
+
+Constraint for this measurement: use `droid search` as your retrieval method. Do NOT grep or read the session transcript files under ~/.factory/sessions directly — that path is already known to work and is not what this run is measuring. If `droid search` cannot surface the value, report that outcome rather than substituting the direct-file method.
+
+Report the codename on its own line as CODENAME=<value>, plus: the exact command you ran, the session id the value came from, and whether that session belongs to the executor. If you cannot obtain it, report CODENAME=UNKNOWN and what stopped you.
