@@ -36,6 +36,35 @@ No worker or validator model flags were involved. This is the plainest mission i
 
 That distinction is the accurate summary of Probe 1 right now: **the surface exists; it could not be exercised.**
 
+### Isolated to `--mission`
+
+A control run on the same CLI version, in the same `/tmp` scratch repo:
+
+| Run | Command | `numTurns` | `input_tokens` | exit |
+|---|---|---:|---:|---:|
+| Control | `droid exec "reply ok"` | 1 | 2 | 0 |
+| Mission | `droid exec --mission --auto high --model claude-opus-5 "Add a one-line comment to README.md"` | 0 | 0 | 0 |
+
+The control consumed tokens and took a turn, so auth, model resolution, and the LLM call path are all working on this machine. The mission run consumed none. **`input_tokens: 0` is the load-bearing number**: mission mode short-circuits before any model is called, rather than calling a model that then declines to act. That rules out prompt quality, model refusal, and permission denial as explanations, since none of those can produce a zero-token run.
+
+#### Residual confound, and the one command that closes it
+
+The control differs from the mission run in more than the `--mission` flag: it also drops `--auto high` and uses a trivial prompt instead of a file edit. `--model` can be discounted, being the version default either way. So the comparison establishes that *the plain exec path reaches a model* and that *the mission path does not*, which is strong. It does not strictly prove `--mission` is the sole cause, because two other variables moved with it.
+
+The single-variable control is:
+
+```
+droid exec --auto high "Add a one-line comment to README.md"
+```
+
+Same prompt, same autonomy, same cwd, `--mission` removed. If that takes a turn and edits the file, `--mission` is isolated as the sole cause with nothing left to argue. This is the first question a Factory engineer will ask, so it is worth the one run before the finding is filed.
+
+### On independent convergence
+
+Two agents working in separate contexts, without visibility into each other's reasoning, arrived at the same discriminating experiment and hit the same missing-`timeout` footgun on macOS. That is a mild positive signal about the experiment design, and it is the repo's own method applied to its own evidence.
+
+It is not a second observation. The measurements in this record were produced by operator-run invocations and transcribed here; this agent never successfully executed the command itself. Convergence on *what to test* is not replication of *what was seen*, and the distinction is exactly the kind this repo exists to keep straight.
+
 ## Why this does not answer Probe 1
 
 Probe 1 asks whether distinct models can be pinned to planner, reviewer, worker, and validator roles. The intended test routes through a Mission with distinct worker and validator model settings. If the mission surface does not execute, there is nothing to pin models *to*, and a pinning test run through it would return a meaningless pass: zero turns consume zero models, so any assertion about which model ran is vacuously satisfiable.
@@ -77,15 +106,17 @@ The repo standard in [`../README.md`](../README.md) requires raw output, resolve
 | Prompt handling | **Closed.** Positional prompt supplied, quoted above |
 | Working directory | **Closed.** `/tmp/mission-probe`, fresh git repo, `README.md` committed |
 | Model availability | **Closed.** Requested ID is the version default |
-| Raw stdout/stderr | **Open.** Four signals transcribed from operator observation, not captured here |
+| Model reachable at all | **Closed.** Control run took a turn and consumed tokens |
+| Defect scoped to mission mode | **Mostly closed.** Control vs mission above; one residual confound noted, with the command that closes it |
+| Raw stdout/stderr | **Open.** All signals transcribed from operator observation, not captured here |
 | Resolved model ID | **Open.** `claude-opus-5` is what was *requested*. What resolved is unrecorded, and unknown provenance cannot satisfy a family constraint (PRD §4) |
 
-Neither open gap undermines the finding. Both are needed before it is cited externally.
+No open gap undermines the finding. All are needed before it is cited externally.
 
 ## Next
 
 1. **Re-run with raw output captured** to this directory, recording the resolved model ID rather than the requested one.
 2. **Assert on the side effect, not the counter.** The strongest evidence here is that `README.md` was never modified. That is an observable outcome, which is the standard the PRD holds executors to; `numTurns: 0` is the system reporting on itself.
-3. **Isolate mission mode.** Run the identical prompt, cwd, and autonomy level *without* `--mission`. If plain `droid exec` completes the edit and the mission variant does not, the defect is mission-specific and the finding hardens to its strongest form. If both no-op, the problem is broader than Missions and Probe 4 planning should account for it.
-4. If it holds, treat PRD §8's Probe 5 contingency as triggered and decide the Mission-native vs command-orchestrated branch at the Phase 0 gate.
+3. **Close the residual confound** with `droid exec --auto high "Add a one-line comment to README.md"`, same cwd, `--mission` removed. One run, and the isolation becomes airtight.
+4. **Treat PRD §8's Probe 5 contingency as triggered.** The mission surface does not execute, which is a stronger trigger than the routing failure §8 anticipated. Decide the Mission-native vs command-orchestrated branch at the Phase 0 gate, before Phase 2 work starts.
 5. Continue with Probe 4, which this does not block.

@@ -35,7 +35,7 @@ Each **Result** below should end with a link to its evidence directory. A result
 
 **How to test:** Configure a Mission with distinct worker and validator model settings. Confirm via `droid exec --mission` flags and mission model settings that each role resolves to the model you specified.
 
-**Result:** **BLOCKED — not reached.** `droid exec --mission` performs no work and reports success at 0.186.0: zero turns, zero tokens, zero credits, exit 0, with a real prompt in a real git repo at `--auto high`. The `--worker-model` / `--validator-model` flags do exist on this version, so the surface is expressible — it just cannot be exercised, and a pinning assertion over zero turns would pass vacuously. Also blocks Probes 5 and 7. Raw capture and resolved model ID still outstanding — see [`evidence/probe-1/`](./evidence/probe-1/).
+**Result:** **BLOCKED — not reached.** `droid exec --mission` performs no work and reports success at 0.186.0: zero turns, zero tokens, zero credits, exit 0, with a real prompt in a real git repo at `--auto high`. A control run of plain `droid exec` on the same machine took a turn and consumed tokens, so the defect is scoped to mission mode: `input_tokens: 0` means it short-circuits before any model call. The `--worker-model` / `--validator-model` flags do exist on this version, so the surface is expressible — it just cannot be exercised, and a pinning assertion over zero turns would pass vacuously. Also blocks Probes 5 and 7. **Triggers the §8 Probe 5 contingency.** Raw capture and resolved model ID still outstanding — see [`evidence/probe-1/`](./evidence/probe-1/).
 
 ---
 
