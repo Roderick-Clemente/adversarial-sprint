@@ -8,6 +8,19 @@
 **Resolved model, every run:** `claude-opus-5`, reasoning effort `high`, read from `message.modelId` in the session store per the Probe 3 addendum method.
 **Raw captures:** [`raw/`](./raw/) · **Rig:** [`rig/`](./rig/) · **Reproduction:** [`run.sh`](./run.sh)
 
+## Answering the reviewer's reframe
+
+A reviewer note (2026-08-03, via the steering channel) reframed this probe before the run and asked for four specific things. Mapping each to evidence, since the reframe is what made the run useful:
+
+| Asked for | Where it is answered |
+|---|---|
+| Don't conflate the **hook** and **permission** mechanisms | Separate test families, compared side by side in [Permission layer vs hooks](#permission-layer-vs-hooks--not-interchangeable). They are not substitutes, and C-a shows the permission layer failing to protect the path at all. |
+| **Re-confirm** hook non-firing on *this* run; don't cite the old one | Re-confirmed and then **explained**: `.factory/hooks.json` genuinely does not fire here either (canary: 0). The new finding is that `.factory/settings.json` does. The old conclusion was scoped too widely, not wrong about what it saw. |
+| A **direct hook control** to isolate the gap to agent-invoked edits | Test B: payload piped straight into the guard, `exit 2` with the contract on stderr, non-locked path `exit 0`. Same V9/V10 discipline — one variable between the working and failing cases. |
+| The reframed question: **actionable signal or process-killing denial?** | **Actionable.** Hook block → agent quotes `SPEC_OR_TEST_BLOCKED`, run continues, 5 turns, `exit 0`. Permission block → `num_turns: 0`, `exit 1`, `is_error: true`. Invariant #3 is buildable on 0.186.0, via the hook path only. |
+
+The note's premise — that the hook "can emit the contract but does not fire on the agent's own edits" — turned out to be a property of the *registration channel*, not of agent-invoked edits. Once registered where the CLI reads, it fires on the agent's own `Edit` on the first attempt.
+
 ## The headline
 
 The earlier finding was recorded as "the Factory CLI did not invoke the hook." That observation was correct. The conclusion drawn from it was wrong.
