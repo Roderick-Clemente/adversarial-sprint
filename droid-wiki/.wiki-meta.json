@@ -2,7 +2,7 @@
   "generatedAt": "2026-08-03T17:00:53Z",
   "commitHash": "342d634",
   "branch": "factory/phase-0-go-no-go",
-  "pageCount": 36,
+  "pageCount": 37,
   "topLevelSections": [
     "overview",
     "by-the-numbers",
@@ -45,6 +45,7 @@
     "findings/index.md",
     "findings/silent-green.md",
     "findings/reference-guard.md",
+    "findings/cross-version-validation.md",
     "security.md",
     "background/index.md",
     "background/design-decisions.md",
