@@ -145,11 +145,21 @@ The caveat is what held it. **The same `rm scratch.txt` was labelled `high` unpr
 
 ## Exit Criteria
 
-- [ ] Minimal plugin scaffold that installs cleanly
-- [ ] Two cross-family read-only Droids
-- [ ] One hook that provably blocks a locked-test edit
-- [ ] One captured run artifact, committed under `evidence/`
-- [ ] **Written go/no-go on Factory-native orchestration** — if Probe 5 says no, the design changes from Mission-native to command-orchestrated, and that decision belongs here rather than halfway through Phase 3
+- [x] Minimal plugin scaffold that installs cleanly — Probe 6
+- [ ] Two cross-family read-only Droids — components proven separately (read-only enforcement in Probes 3 and 6, cross-family pinning in Probe 2), not yet stood up as a pair
+- [x] One hook that provably blocks a locked-test edit — Probe 4, test A5
+- [x] One captured run artifact, committed under `evidence/`
+- [x] **Written go/no-go on Factory-native orchestration** — [`GO-NO-GO.md`](./GO-NO-GO.md)
+
+## Verdict
+
+**[GO, with one mandatory design change](./GO-NO-GO.md): command-orchestrated, not Mission-native.**
+
+`droid exec --mission` is a no-op that reports success, and the per-role model flags are only valid with `--mission`, so the Mission-native path is closed at 0.186.0. The §8 contingency stands up: explicit `--model` per role pins exactly and fails closed on a bad ID, and per-run `usage.factory_credits` gives per-role cost attribution — which partially unblocks Probe 7 and H3 without missions.
+
+No invariant is red. Three are green, three are amber that turn green once one component exists, and one is unprobed and low risk. That component is a single `PreToolUse` hook — read `transcript_path`, inspect what actually happened, fail closed — which enforces locked tests, context isolation **and** model-family separation, and ships inside a plugin that activates on install.
+
+The reason it is needed is the strongest finding of Phase 0: **the platform cannot fail loudly.** A mission that does nothing, a hook that never loads, a model silently downgraded from maximum reasoning to none, and a run whose every tool call was denied all report `exit 0`. Build the guard first; treat every green check as unproven until something we wrote has asserted it.
 
 ## Notes / Findings
 
