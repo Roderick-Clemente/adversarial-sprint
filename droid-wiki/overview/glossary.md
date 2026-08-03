@@ -6,7 +6,7 @@ Terms as this repository uses them. Where a term has a common industry meaning t
 
 **Adversarial Sprint** — the workflow this repository specifies: independent planning, cross-family plan review, separately authored tests, chunked execution, and independent validation. "Adversarial" refers to structural independence between roles, not conflict for its own sake. PRD §16 records the name itself as an open decision.
 
-**GROK → CHUNK → EXECUTE** — the three phases of the sprint method. GROK produces problem analysis, acceptance criteria, risks and test strategy; CHUNK breaks work into independently executable units with locked tests; EXECUTE runs the TDD cycle per chunk. Defined in `templates/SPRINT-PLANNING-TEMPLATE.md`.
+**GROK → CHUNK → EXECUTE** — the three stages of the sprint method. GROK produces problem analysis, acceptance criteria, risks and test strategy; CHUNK breaks work into independently executable units with locked tests; EXECUTE runs the TDD cycle per chunk. Defined in `templates/SPRINT-PLANNING-TEMPLATE.md`.
 
 **Chunk** — one bounded outcome with observable success criteria, allowed implementation files, locked test files, exact commands, a risk level, and a rollback method. Chunks are sequential by default.
 
@@ -62,7 +62,9 @@ Terms as this repository uses them. Where a term has a common industry meaning t
 
 **Probe** — a bounded feasibility experiment against the installed Factory version, recorded with commands, exit codes, raw output, and a reproduction script. A probe is a **Phase-0-only device**: one feasibility question aimed at the platform, used solely to decide the build gate. Later phases deliver vertical slices measured against exit criteria, not probes. Eight exist; see [Probes](../probes/index.md) and the [Roadmap](./index.md#roadmap).
 
-**Phase** — ambiguous here, so check which is meant. The **delivery phases** (0, 0.5, 1, 2, 3, 4) are the project's arc, defined in `PRD.md` §11 and summarised in the [Roadmap](./index.md#roadmap). The **sprint phases** (GROK, CHUNK, EXECUTE) are stages within a single sprint run, defined in `templates/SPRINT-PLANNING-TEMPLATE.md`. The sprint template numbers its own phases 1 to 3, which collide with delivery phases 1 to 3 and mean something different.
+**Phase** — a delivery phase of the project: 0, 0.5, 1, 2, 3, 4. Defined in `PRD.md` §11 and summarised in the [Roadmap](./index.md#roadmap). The word is reserved for this sense; steps inside a single sprint run are stages.
+
+**Stage** — a step within one sprint run. The sprint method has three, GROK then CHUNK then EXECUTE, defined in `templates/SPRINT-PLANNING-TEMPLATE.md` and expanded into the ten-stage machine in [Workflow](../method/workflow.md).
 
 **Vertical slice** — the unit of delivery from Phase 1 onward: a thin path through the whole system producing demonstrable behavior, rather than a horizontal layer. Judged against written exit criteria in `PRD.md` §11.
 

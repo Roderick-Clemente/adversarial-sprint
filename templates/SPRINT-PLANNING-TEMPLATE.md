@@ -66,7 +66,7 @@ Every code change chunk MUST follow this cycle:
 
 ---
 
-## Phase 1: GROK - Problem Analysis
+## Stage 1: GROK - Problem Analysis
 
 ### Context & Background
 [Describe the current state, why this sprint is needed, what triggered it]
@@ -113,7 +113,7 @@ Use this checklist as the default standard for test reviews and new tests.
 
 ---
 
-## Phase 2: CHUNK - Task Breakdown
+## Stage 2: CHUNK - Task Breakdown
 
 ### Chunking Guidance
 - Prefer sequential chunks with validation between each.
@@ -163,7 +163,7 @@ CHUNK_2 (Depends on 0) ────┘
 
 ---
 
-## Phase 3: EXECUTE - Execution Plan
+## Stage 3: EXECUTE - Execution Plan
 
 ### Parallel Execution Strategy
 ```bash

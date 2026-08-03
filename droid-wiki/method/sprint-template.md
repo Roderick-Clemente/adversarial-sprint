@@ -11,9 +11,9 @@
 | Sprint Metadata | Name, date, sprint type (Security / Feature / Refactor / Bug Fix), priority P0–P3, estimated duration, status |
 | Sprint Principles | Low-token execution, standardized practice, audit trail, TDD-first — plus the TDD cycle and branch discipline subsections |
 | Sprint Objectives | Primary goal in one sentence, measurable success criteria as checkboxes, explicit out-of-scope list |
-| Phase 1: GROK | Context, root cause analysis, risk assessment table, affected systems, test strategy, test quality standards, flags and release strategy |
-| Phase 2: CHUNK | Chunking guidance, dependency graph, chunk definitions |
-| Phase 3: EXECUTE | Parallel execution strategy, sequential dependencies, agent handoff plan, rollback strategy table |
+| Stage 1: GROK | Context, root cause analysis, risk assessment table, affected systems, test strategy, test quality standards, flags and release strategy |
+| Stage 2: CHUNK | Chunking guidance, dependency graph, chunk definitions |
+| Stage 3: EXECUTE | Parallel execution strategy, sequential dependencies, agent handoff plan, rollback strategy table |
 | Critical Files Reference | Files to modify, files to verify read-only, files to ignore |
 | Testing & Verification | TDD harness, pre-execution checks, post-execution checks, test plan table, validation evidence table |
 | Success Metrics | Quantitative baselines and targets, qualitative assessments |
@@ -49,13 +49,13 @@ The pre-execution checklist re-asserts these as things to verify rather than ass
 
 ## What a chunk definition contains
 
-In Phase 2, each chunk carries: a type (Code Change / Config / Testing / Documentation), dependencies as chunk IDs or none, a parallelizable flag, a risk level, an estimated duration, numbered actionable tasks, files modified with line ranges, test-first notes naming the test to write before implementation, verification checkboxes, and audit-trail artifacts.
+In Stage 2, each chunk carries: a type (Code Change / Config / Testing / Documentation), dependencies as chunk IDs or none, a parallelizable flag, a risk level, an estimated duration, numbered actionable tasks, files modified with line ranges, test-first notes naming the test to write before implementation, verification checkboxes, and audit-trail artifacts.
 
 The chunking guidance is the same instinct the PRD hardens: prefer sequential chunks with validation between each, use parallel chunks only when file boundaries and dependencies are clean, and, the requirement everything else hangs on, **each chunk must be executable by a different agent without extra context**.
 
 ## The chunk file format
 
-Phase 2 defines the chunk *summary*. A separate section, marked CRITICAL, defines the standalone `chunk-X-[name].md` file that an agent actually executes. Its structure walks the TDD cycle explicitly:
+Stage 2 defines the chunk *summary*. A separate section, marked CRITICAL, defines the standalone `chunk-X-[name].md` file that an agent actually executes. Its structure walks the TDD cycle explicitly:
 
 1. Read the current implementation, with the inspection commands given.
 2. **Write the failing test first (RED)**: the test file path, the test code, the command to run it, an annotation that the test *must* fail at this point, and a written "why it should fail".
@@ -71,7 +71,7 @@ The format rules are worth reading as a list of things that went wrong before. *
 
 ## Test quality standards
 
-Phase 1 sets the standard the template asks reviewers to use as their default:
+Stage 1 sets the standard the template asks reviewers to use as their default:
 
 - Describe behaviours, not methods; test names read like specifications.
 - Decouple from implementation; tests survive refactoring.

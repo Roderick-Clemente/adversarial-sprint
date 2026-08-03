@@ -36,8 +36,6 @@ Each phase carries written exit criteria in `PRD.md` §11. A phase is finished w
 
 Phase 0.5 is the one most easily misread as optional. It is the baseline arm the §13 evaluation already requires, and the PRD is explicit that it must not be strawmanned: if a two-CLI shell harness turns out to be nearly as good as the plugin, that is a finding worth having before a demo rather than during one.
 
-> Not to be confused with the sprint method's own three phases, GROK, CHUNK and EXECUTE, which are stages *within* a single sprint rather than stages of this project. Those are described in [Workflow](../method/workflow.md) and [Sprint template](../method/sprint-template.md).
-
 ## Current status
 
 **Phase 0 is complete and the verdict is GO, with one mandatory design change:** build it command-orchestrated rather than Mission-native. See `phase-0/GO-NO-GO.md`, summarised in [Findings](../findings/index.md).
