@@ -1,0 +1,31 @@
+Available tools for Opus 5
+Autonomy: read-only
+
+Read
+  • DismissHandoffItems (Dismiss Handoff Items) - status: allowed
+  • EndFeatureRun (End Feature Run) - status: allowed
+  • ExitSpecMode (Propose Specification) - status: blocked
+  • FetchUrl (Web Fetch) - status: allowed
+  • Glob - status: allowed
+  • Grep - status: allowed
+  • LS (List Directory) - status: allowed
+  • ProposeMission (Propose Mission) - status: allowed
+  • Read - status: allowed
+  • StartMissionRun (Start Mission Run) - status: allowed
+  • TodoWrite (Plan) - status: allowed
+  • WebSearch (Web Search) - status: allowed
+
+Edit
+  • Create - status: blocked
+  • Edit - status: blocked
+
+Execute
+  • Execute - status: allowed
+  • GenerateDroid (Generate Droid Configuration) - status: blocked
+  • Loop - status: blocked
+  • Skill - status: allowed
+  • Task - status: blocked
+  • TaskOutput (Result) - status: blocked
+  • TaskStop - status: blocked
+  • ToolSearch - status: allowed
+
