@@ -63,13 +63,18 @@ graph LR
     main --> P1["factory/probe-1-evidence"]
 ```
 
-Chaining worked for the chain: `factory/phase-0-go-no-go` has the fullest record, because each probe could cite the one before it. What it cost is that **probe evidence is scattered across branches, and there is no single ref that has all of it**. Probe 3 was recorded off the chain and never merged into it, so its evidence exists only on `factory/probe-3-context-isolation`:
+Chaining worked for the chain: each probe could cite the one before it, and `factory/phase-0-go-no-go` accumulated the fullest record. What it cost is that the three branches recorded **off** the chain never joined it, so for most of Phase 0 there was no single ref carrying all the evidence. Probe 3 was the worst case: the go/no-go cited it throughout, while anyone checking out the Phase 0 branch and looking for `phase-0/evidence/probe-3/` found nothing.
+
+That was a defect in the record rather than a feature of the branching model, and it has since been fixed by merging the off-chain branches in. `factory/phase-0-go-no-go` now carries everything:
 
 ```bash
-git show factory/probe-3-context-isolation:phase-0/evidence/probe-3/README.md
+git checkout factory/phase-0-go-no-go
+ls phase-0/evidence/
 ```
 
-Anyone reading `factory/phase-0-go-no-go` and looking for `phase-0/evidence/probe-3/` finds nothing, while the go/no-go document cites Probe 3 throughout. That is a defect in the record, not a feature of the branching model. If you add a probe, chain it onto the current tip so the same gap is not created twice.
+Two rules came out of it. **Chain a new probe onto the current tip** rather than off `main`, so the gap is not recreated. And **consolidate with merges, not a squash**: the commit-by-commit baton is the evidence that this handoff model works, and squashing it away would destroy the thing the repository is trying to demonstrate.
+
+Branches were kept after consolidation rather than deleted. A branch that is fully contained in the tip costs nothing to keep, and keeping it means the history of one probe stays readable without untangling it from the others.
 
 ## History hygiene
 

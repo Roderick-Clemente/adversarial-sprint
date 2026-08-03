@@ -33,27 +33,30 @@ There is no build, no dependency manifest, and no test suite in the conventional
 
 PRD §9 nominates `.factory/adversarial-sprints/<run-id>/` as the default artifact path, but `.factory/` is gitignored here as local tool state, so evidence written there would be invisible to git. Phase 0's exit criteria require a *captured* run artifact, and §9 permits "another configured artifact path". `phase-0/evidence/` is that path. The reasoning is recorded in `phase-0/evidence/README.md`.
 
-### Content is distributed across branches
+### One consolidated branch, recorded per probe
 
-Unusually, the repository's content depends on which branch you are on. Each probe was recorded on its own branch, and later probes were chained onto earlier ones so results accumulate:
+Each probe was recorded on its own `factory/<topic>` branch while it was being run, and later probes were chained onto earlier ones so results could accumulate and cite each other. Those branches have since been merged into a single line:
 
 ```mermaid
 graph LR
-    main["main<br/>8 files"] --> P1["factory/probe-1-evidence"]
-    main --> P3["factory/probe-3-context-isolation<br/>+ probe-3"]
+    main["main<br/>spec, template, conventions"] --> P1["factory/probe-1-evidence"]
+    main --> P3["factory/probe-3-context-isolation"]
     main --> STEER["factory/steer-channel"]
-    main --> P4["factory/probe-4-hook-blocking<br/>+ probe-4"]
-    P4 --> P8["factory/probe-8-self-declared-risk<br/>+ probe-8"]
-    P8 --> P2["factory/probe-2-fallback-safety<br/>+ probe-2"]
-    P2 --> P6["factory/probe-6-plugin-boundary<br/>+ probe-6"]
-    P6 --> GNG["factory/phase-0-go-no-go<br/>100 files"]
+    main --> P4["factory/probe-4-hook-blocking"]
+    P4 --> P8["factory/probe-8-self-declared-risk"]
+    P8 --> P2["factory/probe-2-fallback-safety"]
+    P2 --> P6["factory/probe-6-plugin-boundary"]
+    P6 --> GNG["factory/phase-0-go-no-go"]
+    P1 -.merged.-> GNG
+    P3 -.merged.-> GNG
+    STEER -.merged.-> GNG
 ```
 
-`factory/phase-0-go-no-go` carries the most complete record, with one exception: **Probe 3's evidence exists only on `factory/probe-3-context-isolation`** and has not been merged into the chain. Nothing has landed on `main` beyond the initial commits, because `AGENTS.md` requires review before merge.
+**`factory/phase-0-go-no-go` now carries the complete record**: all six probe evidence directories, the go/no-go, the spec, and this wiki. Every other branch is fully contained in it. They were kept rather than deleted, so the per-commit history of each probe stays readable on the branch that produced it.
 
-> **Branch consolidation pending.** This scattered state is cleanup debt from running the probes, not the intended structure. Consolidation onto a single reviewed line is planned, after which `main` becomes the place to read the complete record and this section will be revised.
+Consolidation was done as merges rather than a squash, deliberately. The commit-by-commit baton between agents is itself evidence that the handoff method described in [Development workflow](../how-to-contribute/development-workflow.md) worked, and squashing would have destroyed it.
 
-The branch-per-author, branch-per-probe convention is described in [Development workflow](../how-to-contribute/development-workflow.md).
+Nothing has landed on `main` beyond the initial commits, because `AGENTS.md` requires review before merge. So `main` is still the spec and the conventions only, and the Phase 0 branch is where the evidence is.
 
 ## The system the spec describes
 

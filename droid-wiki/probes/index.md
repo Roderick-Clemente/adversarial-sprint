@@ -70,12 +70,12 @@ Probe branches follow the `<agent>/<topic>` convention from `AGENTS.md`, and evi
 |---|---|---|
 | 1 | `phase-0/evidence/probe-1/` | `factory/phase-0-go-no-go` (originally `factory/probe-1-evidence`) |
 | 2 | `phase-0/evidence/probe-2/` | `factory/phase-0-go-no-go` (originally `factory/probe-2-fallback-safety`) |
-| 3 | `phase-0/evidence/probe-3/` | **`factory/probe-3-context-isolation` only** |
+| 3 | `phase-0/evidence/probe-3/`, addendum in `phase-0/evidence/probe-3/ADDENDUM-droid-search.md` | `factory/phase-0-go-no-go` (originally `factory/probe-3-context-isolation`) |
 | 4 | `phase-0/evidence/probe-4/`, current verdict in `phase-0/evidence/probe-4/reverify/` | `factory/phase-0-go-no-go` (originally `factory/probe-4-hook-blocking`) |
 | 6 | `phase-0/evidence/probe-6/` | `factory/phase-0-go-no-go` (originally `factory/probe-6-plugin-boundary`) |
 | 8 | `phase-0/evidence/probe-8/` | `factory/phase-0-go-no-go` (originally `factory/probe-8-self-declared-risk`) |
 
-**Probe 3 is the exception worth knowing about.** Its evidence directory, including the `droid search` addendum, exists only on `factory/probe-3-context-isolation` and has not been merged into the `factory/phase-0-go-no-go` chain. Checking out the Phase 0 branch and looking for `phase-0/evidence/probe-3/` will find nothing. Its result is summarised in `phase-0/README.md` and carried into the go/no-go scorecard, but the raw captures need that branch.
+`factory/phase-0-go-no-go` carries all six records. Probe 3 was the exception for a while: recorded off the chain, it was the one probe whose evidence the Phase 0 branch did not have, even though the go/no-go cited it throughout. Consolidation merged it in, along with probes 1 and 4 and the steering-channel commit. The original per-probe branches were kept rather than deleted, so the commit history of any single probe is still readable on its own.
 
 ## Reading order
 

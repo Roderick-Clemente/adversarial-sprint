@@ -2,7 +2,7 @@
 
 **Verdict: PASS at the agent channel, GAP at the storage layer.** Factory will not hand the validator the executor's context, and will not give it a write tool it was not granted. It also will not stop it from reading the executor's transcript off the disk with `Grep`, or from querying it with `droid search`. [Invariant #2](../method/invariants.md) holds by convention rather than by construction.
 
-> **The evidence for this probe lives only on the `factory/probe-3-context-isolation` branch.** It was never merged into the `factory/phase-0-go-no-go` chain, so checking out the Phase 0 branch and looking for `phase-0/evidence/probe-3/` finds nothing. Read it with `git show factory/probe-3-context-isolation:phase-0/evidence/probe-3/README.md` and `...:phase-0/evidence/probe-3/ADDENDUM-droid-search.md`.
+> This probe was recorded off the main chain and, for most of Phase 0, its evidence existed only on `factory/probe-3-context-isolation` while the go/no-go cited it throughout. It has since been merged, so `phase-0/evidence/probe-3/` and its `ADDENDUM-droid-search.md` are on `factory/phase-0-go-no-go` with the rest.
 
 | | |
 |---|---|

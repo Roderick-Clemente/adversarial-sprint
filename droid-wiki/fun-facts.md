@@ -54,6 +54,6 @@ Probe 1 read `num_turns: 0` as "no work performed" and was right, but for the wr
 
 `phase-0/evidence/README.md` is 24 lines long and one of them is the reason the whole corpus is dated: *"the `droid --version` under test, since a 'no' recorded against no version cannot be rechecked later."* A finding of the form "the platform can't do X" is unusable and uncontestable without a version attached, so every probe record carries `droid 0.186.0` in its header, and the go/no-go is explicitly invalidated by a CLI upgrade until the probes are re-run. — [Probes index](./probes/index.md), [Patterns and conventions](./how-to-contribute/patterns-and-conventions.md)
 
-## The largest evidence directory is on a branch nobody merged
+## One probe outweighed the entire repository
 
-Probe 3's evidence is 57 files and 247 KB. The entire `factory/phase-0-go-no-go` branch is 100 files and 238 KB. The single probe directory is larger than the branch that carries the verdict, and it is not in it — check out the Phase 0 branch and `phase-0/evidence/probe-3/` does not exist. Its raw captures need `factory/probe-3-context-isolation`. — [By the numbers](./by-the-numbers.md)
+Probe 3's evidence is 57 files and 247 KB. Before consolidation the whole `factory/phase-0-go-no-go` branch was 100 files and 238 KB, so a single probe directory was larger than the branch carrying the verdict, and for most of Phase 0 it was not in it: the go/no-go cited Probe 3 throughout while `phase-0/evidence/probe-3/` did not exist on that branch. It has since been merged in. See [By the numbers](./by-the-numbers.md).

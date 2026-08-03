@@ -48,14 +48,14 @@ Each script prints its `droid --version` first, then an expected-shape summary a
 
 ### Finding the evidence for a probe
 
-Probe evidence is spread across branches. To see Probe 3, which is not on the main chain:
+All six probe evidence directories are on `factory/phase-0-go-no-go`, alongside the go/no-go and this wiki:
 
 ```bash
-git show factory/probe-3-context-isolation:phase-0/evidence/probe-3/README.md
-git checkout factory/probe-3-context-isolation
+git checkout factory/phase-0-go-no-go
+ls phase-0/evidence/          # probe-1 … probe-8
 ```
 
-The branch layout is explained in [Architecture](./architecture.md#content-is-distributed-across-branches).
+They have not been merged to `main`, which still carries only the spec, the template and the conventions. Each probe also keeps its own original `factory/<topic>` branch, retained after consolidation so the per-commit history of a single probe stays readable in isolation. The layout is explained in [Architecture](./architecture.md#one-consolidated-branch-recorded-per-probe).
 
 ## Reading a probe record
 

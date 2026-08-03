@@ -1,25 +1,27 @@
 # By the numbers
 
-Everything on this page was measured against the repository as it stands on `factory/phase-0-go-no-go`, with a few figures read from other branches where the evidence lives there. The commands are listed at the bottom so the page can be refreshed rather than trusted.
+Everything on this page was measured against `factory/phase-0-go-no-go` at commit `342d634`, after the probe branches were consolidated into it. The commands are listed at the bottom so the page can be refreshed rather than trusted.
 
-Two things to keep in mind while reading. First, there is no application code yet, so "lines of code" is zero and every size figure below is documentation or captured evidence. Second, **Probe 3's evidence directory exists only on `factory/probe-3-context-isolation`** and is therefore absent from the Phase 0 branch totals; it is counted separately wherever it matters.
+One thing to keep in mind while reading: there is no application code yet, so "lines of code" is zero and every size figure below is documentation or captured evidence.
 
 ## Repository shape
 
 | Measure | Value |
 |---|---:|
-| Files tracked on `factory/phase-0-go-no-go` | 100 |
-| Of those, under `phase-0/` | 95 |
+| Files tracked on `factory/phase-0-go-no-go` | 197 |
+| Of those, under `phase-0/` | 155 |
+| Of those, under `droid-wiki/` | 37 |
 | Of those, under `templates/` | 1 |
 | Of those, at the repository root | 4 |
-| Markdown files on the Phase 0 branch | 17 |
-| Total tracked bytes, Phase 0 branch | 238 KB |
+| Markdown files | 58 |
+| Total tracked bytes | 851 KB |
+| Of that, under `phase-0/` | 426 KB |
 | Files tracked on `main` | 8 |
 | Application source files | 0 |
 
-The four root files are `.gitignore`, `AGENTS.md`, `PRD.md` and `README.md`. `main` carries the spec, the template, the conventions and three `README.md` files, and nothing else — probe evidence was landed on the Phase 0 chain and has not been merged down.
+The four root files are `.gitignore`, `AGENTS.md`, `PRD.md` and `README.md`. `main` carries the spec, the template, the conventions and three `README.md` files, and nothing else, because `AGENTS.md` requires review before anything lands there.
 
-Worth noting against the 238 KB figure: **Probe 3's evidence alone is 247 KB across 57 files**, so the single unmerged probe directory is larger than the entire Phase 0 branch.
+For scale: **Probe 3's evidence alone is 247 KB across 57 files**, which is more than half of all probe evidence by size and larger than the entire repository was before consolidation.
 
 ## The probe corpus
 
@@ -110,7 +112,7 @@ Thirty-two of thirty-three commits are agent co-authored. That is the reason `AG
 
 ### Branch layout
 
-Every local branch follows the `<agent>/<topic>` convention from `AGENTS.md`, and every one of the nine is a `factory/` branch or `main`. Probes were chained rather than merged, so each probe branch builds on the previous one's result:
+Every local branch follows the `<agent>/<topic>` convention from `AGENTS.md`, and every one of the nine is a `factory/` branch or `main`. Probes were chained during the run, then the three off-chain branches were merged in:
 
 ```mermaid
 flowchart LR
@@ -118,19 +120,31 @@ flowchart LR
   p3["factory/probe-3-context-isolation<br/>4 commits"]
   p1["factory/probe-1-evidence<br/>1 commit"]
   st["factory/steer-channel<br/>1 commit"]
-  p4["factory/probe-4-hook-blocking"]
+  p4["factory/probe-4-hook-blocking<br/>1 unique commit"]
   p8["factory/probe-8-self-declared-risk"]
   p2["factory/probe-2-fallback-safety"]
   p6["factory/probe-6-plugin-boundary"]
-  go["factory/phase-0-go-no-go<br/>adc1465"]
+  go["factory/phase-0-go-no-go<br/>342d634"]
 
   main --> p3
   main --> p1
   main --> st
   main --> p4 --> p8 --> p2 --> p6 --> go
+  p3 -.merged.-> go
+  p1 -.merged.-> go
+  st -.merged.-> go
 ```
 
-The chain on the right is where the go/no-go reads its evidence from. The three branches hanging off `main` never joined it, which is why Probe 3's captures are not on the Phase 0 branch. Three further lines exist on the `origin` remote only — `factory/phase-0-probes`, `factory/phase-0-evidence-and-probes` and `codex/shared-protocol-bootstrap` — and account for the earlier parallel run of Phase 0 visible in the commit graph.
+| Branch state | Count |
+|---|---:|
+| Local branches | 9 |
+| Contained in `factory/phase-0-go-no-go` | 9 |
+| Commits reachable from the consolidated tip | 27 |
+| Of those, merge commits from consolidation | 4 |
+
+Seven unique commits were merged in from four branches: four from probe 3, and one each from probe 1, probe 4 and the steering channel. Probes 2, 6 and 8 were already contained through the chain. Merges were used rather than a squash, so the per-commit handoff history survives. No branch was deleted, so any single probe's history is still readable on the branch that produced it.
+
+Three further lines exist on the `origin` remote only: `factory/phase-0-probes`, `factory/phase-0-evidence-and-probes` and `codex/shared-protocol-bootstrap`. They account for the earlier parallel run of Phase 0 visible in the commit graph.
 
 ## How these were measured
 
