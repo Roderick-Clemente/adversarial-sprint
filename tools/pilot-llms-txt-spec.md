@@ -12,8 +12,12 @@ enough to be worth having.
 ## The change (one file added, one route wired, one test)
 
 1. **`api/llms_txt.py`** — new handler `handle_llms_txt()` returning
-   `Response(body, mimetype="text/plain; charset=utf-8")`.
-   (Mimetype precedent already in the repo: `/metrics` returns plain text.)
+   `Response(body, mimetype="text/plain")`. **Use the bare mimetype** — Werkzeug appends
+   `charset=utf-8` automatically. Do NOT write `mimetype="text/plain; charset=utf-8"`: that
+   doubles the charset param (`text/plain; charset=utf-8; charset=utf-8`), which is
+   RFC-7231-malformed. (Pilot Run 2/3, Aug 3: both Grok and Kimi caught this blind. NOTE: the
+   repo's existing `/metrics` route at `app.py` has the SAME doubled-charset defect — pre-existing,
+   out of scope for this pilot, but do not copy it as precedent.)
 2. **`app.py`** — thin route stub `@app.route("/llms.txt")` delegating to the handler
    (matches the repo's existing pattern: `app.py` routes are thin, logic lives in `api/<name>.py`
    with `handle_*` names).
