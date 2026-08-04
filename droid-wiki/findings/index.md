@@ -65,13 +65,14 @@ Found incidentally while probing something else. Tabulated with their probes in 
 
 ## What this section does not claim
 
-Phase 0 answered whether the platform **can** enforce the invariants. It did not test whether the method **works**, which is the H1/H2/H3 evaluation in PRD §13 and belongs to a later phase.
+Phase 0 answered whether the platform **can** enforce the invariants. It did not test whether the method **works**, which is the H1/H2/H3 evaluation in PRD §13 and belongs to a later phase. The first datapoint from that later phase is recorded separately in [First H1 evidence](./first-h1-evidence.md) — a hand-run pilot, explicitly signal rather than proof, kept out of the Phase 0 conclusions above.
 
 Three probes are incomplete: #4 was never probed, #5 was never reached, and #7 is only partially unblocked. Every probe record ends with its own limits section, and those limits are part of the finding rather than a caveat on it.
 
 ## Related
 
 - [Cross-version validation](./cross-version-validation.md) — the same primitives at `droid` 0.180.0
+- [First H1 evidence](./first-h1-evidence.md) — the first later-phase datapoint, scoped as signal not proof
 - [Probes](../probes/index.md) — the evidence these conclusions rest on
 - [Invariants](../method/invariants.md) — what is being enforced and why
 - [Open questions](../background/open-questions.md) — what is still unresolved

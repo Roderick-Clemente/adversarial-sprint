@@ -35,6 +35,8 @@ PRD §4 separates what must be *measured* from what must be *enforced*. The hypo
 
 The enforced half is the eight [invariants](../method/invariants.md), and §13 is explicit that a demo looking good is not evidence for any of the three. "Models disagree at least once" is deliberately **not** a success gate, since it would reward manufactured findings. A clean null result counts as data.
 
+The first observation bearing on H1 is now on the board — a hand-run pilot in which two cross-family reviewers each caught a different accepted defect the planner missed, and both independently caught a third. It is signal, not proof, and the run cannot separate family diversity from the different review lenses the two reviewers were given; see [First H1 observation](../findings/first-h1-evidence.md).
+
 ## Related
 
 - [Overview](../overview/index.md) — current status and the one finding that matters most

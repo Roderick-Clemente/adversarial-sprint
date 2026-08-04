@@ -1,6 +1,6 @@
 # By the numbers
 
-Everything on this page was measured against `factory/phase-0-go-no-go` at commit `342d634`, after the probe branches were consolidated into it. The commands are listed at the bottom so the page can be refreshed rather than trusted.
+Everything on this page was measured against `main` at commit `292d3be`, after Phase 0 and the 0.180.0 canary were merged and every probe branch was pruned. The commands are listed at the bottom so the page can be refreshed rather than trusted.
 
 One thing to keep in mind while reading: there is no application code yet, so "lines of code" is zero and every size figure below is documentation or captured evidence.
 
@@ -8,15 +8,16 @@ One thing to keep in mind while reading: there is no application code yet, so "l
 
 | Measure | Value |
 |---|---:|
-| Files tracked on `factory/phase-0-go-no-go` | 197 |
-| Of those, under `phase-0/` | 155 |
-| Of those, under `droid-wiki/` | 37 |
+| Files tracked on `main` | 208 |
+| Of those, under `phase-0/` | 161 |
+| Of those, under `droid-wiki/` | 39 |
 | Of those, under `templates/` | 1 |
+| Of those, under `tools/` | 3 |
 | Of those, at the repository root | 4 |
-| Markdown files | 58 |
-| Total tracked bytes | 851 KB |
-| Of that, under `phase-0/` | 426 KB |
-| Files tracked on `main` | 8 |
+| Markdown files | 69 |
+| Total tracked bytes | 915 KB |
+| Of that, under `phase-0/` | 457 KB |
+| Commits on `main` | 44 |
 | Application source files | 0 |
 
 The four root files are `.gitignore`, `AGENTS.md`, `PRD.md` and `README.md`. `main` carries the spec, the template, the conventions and three `README.md` files, and nothing else, because `AGENTS.md` requires review before anything lands there.
@@ -112,7 +113,9 @@ Thirty-two of thirty-three commits are agent co-authored. That is the reason `AG
 
 ### Branch layout
 
-Every local branch follows the `<agent>/<topic>` convention from `AGENTS.md`, and every one of the nine is a `factory/` branch or `main`. Probes were chained during the run, then the three off-chain branches were merged in:
+Every branch followed the `<agent>/<topic>` convention from `AGENTS.md`. Probes were chained during the run, the three off-chain branches were merged in, and the whole set was then landed on `main` and pruned.
+
+**This is a historical diagram.** None of the `factory/` branches below still exist. Each was deleted only after `git merge-base --is-ancestor <branch> main` passed, so the commits remain reachable from `main` and the labels are gone. The shape is preserved here because the per-probe history is itself evidence that the commits-as-baton handoff worked:
 
 ```mermaid
 flowchart LR
@@ -135,12 +138,14 @@ flowchart LR
   st -.merged.-> go
 ```
 
-| Branch state | Count |
-|---|---:|
-| Local branches | 9 |
-| Contained in `factory/phase-0-go-no-go` | 9 |
-| Commits reachable from the consolidated tip | 27 |
-| Of those, merge commits from consolidation | 4 |
+| Branch state | Then | Now |
+|---|---:|---:|
+| Local branches | 9 | 2 |
+| Commits reachable from the tip | 27 | 44 |
+| Merge commits from consolidation | 4 | 4 |
+| `factory/` probe branches surviving | 9 | 0 |
+
+The two remaining are `main` and `claude/ops-docs`. Everything else was pruned with `git branch -d`, never `-D`, so git would have refused any branch that was not genuinely contained.
 
 Seven unique commits were merged in from four branches: four from probe 3, and one each from probe 1, probe 4 and the steering channel. Probes 2, 6 and 8 were already contained through the chain. Merges were used rather than a squash, so the per-commit handoff history survives. No branch was deleted, so any single probe's history is still readable on the branch that produced it.
 
@@ -152,26 +157,24 @@ Run from the repository root. Substitute branch names as needed.
 
 ```bash
 # Repository shape
-git ls-tree -r --name-only factory/phase-0-go-no-go | wc -l
-git ls-tree -r --name-only factory/phase-0-go-no-go | awk -F/ 'NF>1{print $1}' | sort | uniq -c
-git ls-tree --name-only factory/phase-0-go-no-go
-git ls-tree -r --name-only factory/phase-0-go-no-go | grep -c '\.md$'
-git ls-tree -r -l factory/phase-0-go-no-go | awk '{s+=$4} END {print int(s/1024)" KB, files="NR}'
+git ls-tree -r --name-only main | wc -l
+git ls-tree -r --name-only main | awk -F/ 'NF>1{print $1}' | sort | uniq -c
+git ls-tree --name-only main
+git ls-tree -r --name-only main | grep -c '\.md$'
+git ls-tree -r -l main | awk '{s+=$4} END {print int(s/1024)" KB, files="NR}'
 git ls-tree -r --name-only main | wc -l
 
-# Probe corpus (working tree is factory/phase-0-go-no-go)
-for p in 1 2 4 6 8; do
-  git ls-tree -r -l factory/phase-0-go-no-go -- phase-0/evidence/probe-$p |
+# Probe corpus (everything is on main now; the probe branches are pruned)
+for p in 1 2 3 4 6 8; do
+  git ls-tree -r -l main -- phase-0/evidence/probe-$p |
     awk -v p=$p '{s+=$4} END {print "probe-"p": "int(s/1024)" KB, files="NR}'
 done
-git ls-tree -r -l factory/probe-3-context-isolation -- phase-0/evidence/probe-3 |
-  awk '{s+=$4} END {print s/1024" KB, files="NR}'
-find phase-0/evidence -name '*.json' | wc -l        # 39; add 24 from probe-3's branch
-find phase-0/evidence -name 'run.sh' | wc -l        # 4; probe-3 adds a fifth
+find phase-0/evidence -name '*.json' | wc -l
+find phase-0/evidence -name 'run.sh' | wc -l
 find phase-0/evidence -name '*.py' | wc -l
 for d in $(find phase-0/evidence -type d -name 'raw*'); do echo "$d: $(find $d -type f | wc -l)"; done
 grep -rho 'droid exec' --include='*.sh' phase-0/evidence | wc -l
-git show factory/probe-3-context-isolation:phase-0/evidence/probe-3/run.sh | grep -c 'droid exec'
+git show main:phase-0/evidence/probe-3/run.sh | grep -c 'droid exec'
 
 # Documents
 wc -l PRD.md README.md AGENTS.md templates/SPRINT-PLANNING-TEMPLATE.md \

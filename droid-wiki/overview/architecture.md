@@ -14,20 +14,32 @@ adversarial-sprint/
 ├── PRD.md                                 full spec: problem, invariants, phases, evaluation
 ├── templates/
 │   └── SPRINT-PLANNING-TEMPLATE.md        canonical GROK/CHUNK/EXECUTE method
-└── phase-0/
-    ├── README.md                          the eight probes and their verdicts
-    ├── GO-NO-GO.md                        Phase 0 decision
-    └── evidence/
-        ├── README.md                      what a probe record must contain
-        ├── probe-1/ … probe-8/            one directory per probe
-        │   ├── README.md                  the finding, with reasoning
-        │   ├── raw/                       captured stdout, exit codes, hook logs
-        │   ├── rig/                       the hook scripts and configs under test
-        │   └── run.sh                     re-runs every measurement
-        └── …
+├── tools/                                 operating discipline, tracked so it travels
+│   ├── OPERATING-RULES.md                 multi-agent, multi-machine rules
+│   ├── wake-loop.md                       orchestrator/worker async pattern
+│   └── pilot-llms-txt-spec.md             spec for the first hand-run pilot
+├── phase-0/
+│   ├── README.md                          the eight probes and their verdicts
+│   ├── GO-NO-GO.md                        Phase 0 decision
+│   └── evidence/
+│       ├── README.md                      what a probe record must contain
+│       ├── probe-1/ … probe-8/            one directory per probe
+│       │   ├── README.md                  the finding, with reasoning
+│       │   ├── raw/                       captured stdout, exit codes, hook logs
+│       │   ├── rig/                       the hook scripts and configs under test
+│       │   └── run.sh                     re-runs every measurement
+│       └── canary-0.180.0/                the same primitives on an older CLI
+└── pilots/
+    └── ai-discovery/                      first hand-run pilot, the H1 observation
+        ├── README.md                      units, merge commits, what it does not support
+        └── validator-outputs/             the reviewers' own text, verbatim where noted
 ```
 
 There is no build, no dependency manifest, and no test suite in the conventional sense. The executable artifacts are the probe rigs: Python hook scripts and `run.sh` reproduction scripts. See [Getting started](./getting-started.md).
+
+`tools/` is tracked deliberately. Sessions are machine-scoped and `STEER.md` is gitignored, so the git repository is the only channel that reaches a second machine — anything a future agent must know has to be committed or it does not travel. `tools/OPERATING-RULES.md` is the operating discipline that sits on top of `AGENTS.md`.
+
+`pilots/` is separate from `phase-0/` on purpose. Phase 0 evidence answers whether the platform *can* enforce the invariants and is scoped to a CLI version. A pilot is a hand-run of the method against a live target, and it is deliberately **not** filed under `phase-0.5/`, because PRD §11 reserves Phase 0.5 for the manual baseline arm — the same change done a second way for comparison — which has not been run. See [First H1 observation](../findings/first-h1-evidence.md).
 
 ### Evidence lives in the repo, not in `.factory/`
 
