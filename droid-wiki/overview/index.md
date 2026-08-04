@@ -34,12 +34,17 @@ graph TD
     T --> RED{"Valid RED?<br/>fails for the expected reason"}
     RED -->|no| T
     RED -->|yes| X["Execute the chunk<br/>cheap tier"]
-    X --> V["Validate<br/>family is not the executor's<br/>sees spec, diff and evidence, not reasoning"]
+    X --> F["Refactor<br/>tests stay green"]
+    F --> V["Validate<br/>family is not the executor's<br/>sees spec, diff and evidence, not reasoning"]
     V -->|reject| X
     V -->|accept| N{"More chunks?"}
     N -->|yes| T
     N -->|no| D["Done"]
 ```
+
+**This shape is not new, and that is the point.** The diagram is the method as already practiced: a planning, chunking and execution cycle that has been run by hand for months and is written down in `templates/SPRINT-PLANNING-TEMPLATE.md`, the canonical copy this project packages. Chunking in particular is a defined stage there, not a box invented for this page, and it carries a dependency graph in which independent chunks may run in parallel while dependent ones stay sequential. The landing diagram keeps a single chunk in view for legibility; the mechanics are in [Workflow](../method/workflow.md).
+
+What Phases 0.5 through 3 add is **enforcement**, not invention. The same shape, with the separations and gates made mandatory instead of remembered. Practiced by hand is not the same as enforced, and neither is the same as measured: the enforcement layer is unbuilt, and no comparison run exists yet.
 
 Four properties carry the method, and all four are meant to be enforced rather than suggested:
 
@@ -57,6 +62,8 @@ Validation happens **per chunk, not at the end**. A rejected chunk is a cheap re
 The method spends *more* than a single-model run on planning, adversarial plan review, test design, and per-chunk validation. That is intentional. Those are the points where being wrong is expensive, because an error in the plan propagates into every chunk built on top of it, and an error the validator misses ships.
 
 That front-loaded spend is what makes the cheapest seat safe. By the time any implementation code is written, the work has been planned, attacked by a model from a different family, cut into a bounded chunk with a declared complexity ceiling, and given a test that has already failed for the expected reason. The executor is not being asked to decide what to do. It fills a specified hole with a test watching. That is why the cheapest model in the loop is the one holding the only seat with implementation write access.
+
+This argument is not back-fitted to justify the design. The canonical template states it as a standing principle, in those words: **"Low-token execution: plan once, execute in small chunks with minimal context"** (`templates/SPRINT-PLANNING-TEMPLATE.md`). The allocation came first and the method was built around it, well before this page existed to argue for it.
 
 | Role | Default tier | Write access |
 |---|---|---|

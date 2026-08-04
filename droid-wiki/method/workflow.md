@@ -124,6 +124,27 @@ Documented exceptions (refactors, docs-only changes, test-only cleanup, fixes wi
 
 **Outputs.** Per chunk: one bounded outcome with observable success criteria; dependencies and semantic interfaces, not merely overlapping file paths; allowed implementation files and locked test files; exact RED, focused GREEN, full-suite, lint and build commands; expected outputs or pass conditions; risk level and human-review trigger; rollback method; retry and escalation behavior; and a standardised result block.
 
+The chunk graph is the artifact this stage produces. Independent chunks may run in parallel; anything with a dependency waits, and validation sits between each chunk rather than at the end of the batch:
+
+```mermaid
+graph TD
+    LOCK["Chunk and lock<br/>acyclic graph, test hashes pinned"] --> C0["CHUNK_0<br/>independent"]
+    LOCK --> C1["CHUNK_1<br/>independent"]
+    LOCK --> C2["CHUNK_2<br/>depends on 0"]
+    C0 --> V0{"Validate"}
+    C1 --> V1{"Validate"}
+    V0 -->|accept| C2
+    V0 -->|reject| C0
+    V1 -->|reject| C1
+    C2 --> V2{"Validate"}
+    V2 -->|reject| C2
+    V1 -->|accept| CN["CHUNK_N<br/>sequential, depends on 0-X"]
+    V2 -->|accept| CN
+    CN --> VN{"Validate"} -->|accept| DONE["Report and PR"]
+```
+
+Parallelism is an option the graph permits, not a default it assumes. The template's own guidance is to prefer sequential chunks with validation between each, and to use parallel chunks only when file boundaries and dependencies are clean (`templates/SPRINT-PLANNING-TEMPLATE.md`).
+
 **Gate.** Test hashes are pinned and the dependency graph is acyclic. Chunks are **sequential by default**. Parallel execution requires clean file boundaries **and** no shared schema, configuration, generated artifact, migration order, API contract, or behavioral dependency. PRD §14 rates "parallel chunks conflict semantically without touching the same file" as a high-severity risk, which is why file-level disjointness alone is not sufficient.
 
 Chunk prompts carry enough repository context and public examples to execute safely but **do not prescribe a full implementation**. Over-specifying would anchor the executor and make black-box tests more likely to mirror the code.
