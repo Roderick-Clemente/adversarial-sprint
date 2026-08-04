@@ -25,8 +25,6 @@ If you run agents unattended, that is the real exposure. Not a bad diff you can 
 
 One frontier model plans. A model from a different family attacks that plan. The disagreements are reconciled, the work is cut into chunks, and then each chunk runs a small test-first cycle whose result is checked by a model that did not write it.
 
-Two diagrams follow, and they are deliberately the same diagram twice. The first is the method as it runs today. The second is the same loop with the enforcement layer drawn on top, because the project is about making this shape mandatory rather than about inventing a new one.
-
 ### The method, run by hand today
 
 ```mermaid
@@ -50,28 +48,50 @@ This is the GROK, CHUNK and EXECUTE method in `templates/SPRINT-PLANNING-TEMPLAT
 
 Nothing on this diagram is speculative. Every separation in it is something a person currently holds in their head and remembers to do.
 
+Four properties carry the method, and all four are meant to be enforced rather than suggested:
+
+1. **Family separation.** The plan reviewer is not the planner's family; the validator is not the executor's family. Two passes from one model family are one opinion twice.
+2. **Fresh review context.** The validator sees the approved spec, the diff, read-only repository state, and test evidence. It never sees the executor's reasoning.
+3. **Independent test authorship.** The executor cannot write or modify the tests that judge it. Locked by content hash, enforced by a hook.
+4. **Valid RED before GREEN.** Behavior-changing work cannot start until the intended assertion has run and failed *for the expected reason*. A syntax error is not a RED.
+
+Validation happens **per chunk, not at the end**. A rejected chunk is a cheap retry against a small diff, and the next chunk does not start on top of unvalidated work. The full set of eight runtime invariants is in [Invariants](../method/invariants.md), and the stage-by-stage walkthrough is in [Workflow](../method/workflow.md).
+
 ### The enforcement, and what the phases build
 
 The same loop. What changes is that each handoff becomes a contract that something checks, rather than a discipline someone maintains.
 
 ```mermaid
 graph TD
-    P["Plan<br/>frontier, family A"] -->|"guard: family gate"| R["Attack the plan<br/>frontier, family B"]
+    P["Plan<br/>frontier, family A"] --> R["Attack the plan<br/>frontier, family B"]
     R -->|disagreements| C["Reconcile<br/>bounded; a human breaks ties"]
     C --> K["Cut into chunks"]
-    K -->|"author is not the executor"| T["Write the test<br/>author is not the executor"]
+    K --> T["Write the test<br/>author is not the executor"]
     T --> RED{"Valid RED?<br/>fails for the expected reason"}
     RED -->|no| T
-    RED -->|"yes · guard: tests hash-locked"| X["Execute the chunk<br/>cheap tier"]
+    RED -->|yes| X["Execute the chunk<br/>cheap tier"]
     X --> F["Refactor<br/>tests stay green"]
-    F -->|"guard: no reasoning crosses"| V["Validate<br/>family is not the executor's<br/>sees spec, diff and evidence, not reasoning"]
+    F --> V["Validate<br/>family is not the executor's<br/>sees spec, diff and evidence, not reasoning"]
     V -->|reject| X
     V -->|accept| N{"More chunks?"}
     N -->|yes| T
     N -->|no| D["Done"]
+
+    GUARD["Reference guard<br/>one PreToolUse hook, ~30 lines"]
+    GUARD -.->|"family separation"| R
+    GUARD -.->|"independent test authorship"| X
+    GUARD -.->|"fresh review context"| V
+
+    OURS["Our code, outside the guard<br/>valid-RED classifier<br/>per-role pinned invocation"]
+    OURS -.-> RED
+
+    style GUARD fill:#eaeaff,stroke:#445588,stroke-width:2px
+    style OURS fill:#eaffea,stroke:#446644,stroke-width:2px
 ```
 
-The three edges marked `guard:` are **one mechanism, not three**. Phase 0's most useful constructive result is that independent test authorship, fresh review context and family separation collapse into a single `PreToolUse` hook of roughly thirty lines, differing only in what it inspects and what it refuses ([The reference guard](../findings/reference-guard.md)). Two things on the diagram are not that hook: the valid-RED classification, and the rule that each role is a separate invocation with its model explicitly pinned.
+One guard, three policies. That shape is the finding rather than a simplification of it: Phase 0's most useful constructive result is that independent test authorship, fresh review context and family separation collapse into a single `PreToolUse` hook of roughly thirty lines, differing only in what it inspects and what it refuses ([The reference guard](../findings/reference-guard.md)).
+
+Two things sit outside the guard. One is the valid-RED classification. The other is per-role pinned invocation, and the diagram under-draws it deliberately: **pinning applies at every role invocation in the loop, not only at the RED gate.** Each role is a separate `droid exec` with its model named explicitly, so the property attaches to all five seats; the dotted line lands on one node purely to keep the picture readable.
 
 **Where each contract actually stands.** These are not uniformly unbuilt, and the differences matter:
 
@@ -83,15 +103,6 @@ The three edges marked `guard:` are **one mechanism, not three**. Phase 0's most
 | Valid RED, and the guard itself | **Our code, not yet written.** The platform will not classify a RED or detect its own silent degradation; that detection is ours to build. |
 
 So the enforcement layer is part verified primitive and part unwritten code, and one of its contracts has a known hole with a known fix. What does not exist in any form is a measured result: no arm of the `PRD.md` §13 comparison has been run, under any configuration.
-
-Four properties carry the method, and all four are meant to be enforced rather than suggested:
-
-1. **Family separation.** The plan reviewer is not the planner's family; the validator is not the executor's family. Two passes from one model family are one opinion twice.
-2. **Fresh review context.** The validator sees the approved spec, the diff, read-only repository state, and test evidence. It never sees the executor's reasoning.
-3. **Independent test authorship.** The executor cannot write or modify the tests that judge it. Locked by content hash, enforced by a hook.
-4. **Valid RED before GREEN.** Behavior-changing work cannot start until the intended assertion has run and failed *for the expected reason*. A syntax error is not a RED.
-
-Validation happens **per chunk, not at the end**. A rejected chunk is a cheap retry against a small diff, and the next chunk does not start on top of unvalidated work. The full set of eight runtime invariants is in [Invariants](../method/invariants.md), and the stage-by-stage walkthrough is in [Workflow](../method/workflow.md).
 
 ## Where the tokens go
 

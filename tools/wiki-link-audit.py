@@ -44,8 +44,17 @@ def anchors_of(path):
 def skeleton_drift():
     """The landing page carries the loop twice: once as the method practiced today,
     once with the enforcement layer on top. The second only reads as "the same shape,
-    now enforced" if it IS the same shape. Assert both diagrams share a node set, so a
-    later edit to one cannot silently turn them into two different flows."""
+    now enforced" if it IS the same shape plus annotation.
+
+    Node-set equality was the first cut at this, and it was a proxy rather than the
+    invariant: it holds only while the overlay lives entirely in edge labels, and it
+    breaks the moment the overlay needs a node of its own. Assert the real thing:
+
+      1. every diagram-1 node still appears in diagram 2 (the flow is preserved), and
+      2. any node diagram 2 adds is annotation only -- it may attach with a dotted
+         edge (-.->) but never with a solid one, so an overlay cannot quietly join
+         the flow and turn diagram 2 into a different picture.
+    """
     page = os.path.join(WIKI, "overview", "index.md")
     if not os.path.exists(page):
         return []
@@ -53,10 +62,17 @@ def skeleton_drift():
     if len(blocks) != 2:
         return []
     nodes = [set(re.findall(r"([A-Z][A-Z0-9]*)\s*(?:\[|\{)", b)) for b in blocks]
-    if nodes[0] == nodes[1]:
-        return []
-    diff = sorted(nodes[0] ^ nodes[1])
-    return [("skeleton", page, f"landing diagrams differ by node(s): {', '.join(diff)}")]
+    out = []
+    missing = sorted(nodes[0] - nodes[1])
+    if missing:
+        out.append(("skeleton", page,
+                    f"diagram 2 dropped diagram 1 node(s): {', '.join(missing)}"))
+    solid = [ln for ln in blocks[1].splitlines() if "-->" in ln]
+    for extra in sorted(nodes[1] - nodes[0]):
+        if any(re.search(rf"\b{re.escape(extra)}\b", ln) for ln in solid):
+            out.append(("skeleton", page,
+                        f"overlay node {extra} joins the flow with a solid edge"))
+    return out
 
 
 def main():
