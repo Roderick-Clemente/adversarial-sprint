@@ -101,3 +101,6 @@ Anything in `STEER.md` that should survive belongs in a commit, a probe README, 
 - Read [Patterns and conventions](./patterns-and-conventions.md) for the evidence standard your record must meet.
 - If you added or changed a probe, confirm it re-runs from its own directory — see [Testing](./testing.md).
 - Confirm nothing on the never-write list is in the diff. See [How to contribute](./index.md).
+- Run the link audit: `python3 tools/wiki-link-audit.py` from the repo root. It must print `clean`.
+
+The audit checks four classes, and one of them is invisible to a plain filesystem check. The published wiki receives **only** the `droid-wiki/` subtree, so a link from a wiki page to anything outside it — `../../PRD.md`, `../../pilots/…` — resolves in git and 404s for anyone reading the wiki in the app. The **escaping** class catches exactly that; **absolute** catches `http(s)://` links creeping back onto wiki pages after they were scrubbed once. Reference material outside `droid-wiki/` is cited as a backticked path, not a link.
