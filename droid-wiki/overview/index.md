@@ -1,12 +1,43 @@
 # Adversarial Sprint
 
-A specification and feasibility-evidence repository for a Factory plugin that runs multi-model adversarial planning, execution, and validation for agentic coding.
+**A framework for getting better code out of coding agents, at a lower token cost than putting a frontier model in every seat.**
 
-There is no application code here yet, and that is deliberate. The repository is currently a **build gate**: a full product spec (`PRD.md`), the canonical sprint method it packages (`templates/SPRINT-PLANNING-TEMPLATE.md`), and a set of executed probes that test whether the platform can actually enforce what the spec assumes. Plugin directories (`droids/`, `skills/`, `schemas/`, `scripts/`) get created once the probes say the design is buildable, not before.
+The bet is that quality comes from structure rather than from a smarter model. Two or more agents from **different model families** plan the work, attack each other's plan, cut it into chunks, and independently validate every chunk before the next one starts. No agent grades its own work, and no agent reviewing a piece of work is allowed to see the reasoning of the agent that produced it.
 
-## The idea
+## Why you should care
 
-Quality in agentic coding does not come from a smarter model. It comes from **structural separation of roles across different model families**, with expensive thinking front-loaded into planning, and executable evidence — not self-assessment — deciding whether work is done.
+Coding agents fail quietly. They report success for work they did not do, and the report looks exactly like a report of work they did.
+
+That is not a hypothesis here. Four separate probes against a shipping product at a pinned version hit the same shape:
+
+- a mission that performs no work and exits 0 ([Probe 1](../probes/probe-1-model-pinning.md))
+- a hook registered in the documented location that is never loaded ([Probe 4](../probes/probe-4-hook-blocking.md))
+- a model silently downgraded from maximum reasoning to none ([Probe 2](../probes/probe-2-fallback-safety.md))
+- a run whose every tool call was denied, still exiting 0 with a plausible-looking answer ([Probe 2](../probes/probe-2-fallback-safety.md))
+
+Each one is reproducible from a command recorded in this repository. The pattern is written up in [Silent green](../findings/silent-green.md).
+
+If you run agents unattended, that is the real exposure. Not a bad diff you can see in review, but a green check you believe. Adversarial Sprint starts from the assumption that **a run's own account of itself is not evidence**, and builds the loop so that something other than the executor decides whether the work is done.
+
+## How it works
+
+One frontier model plans. A model from a different family attacks that plan. The disagreements are reconciled, the work is cut into chunks, and then each chunk runs a small test-first cycle whose result is checked by a model that did not write it.
+
+```mermaid
+graph TD
+    P["Plan<br/>frontier, family A"] --> R["Attack the plan<br/>frontier, family B"]
+    R -->|disagreements| C["Reconcile<br/>bounded; a human breaks ties"]
+    C --> K["Cut into chunks"]
+    K --> T["Write the test<br/>author is not the executor"]
+    T --> RED{"Valid RED?<br/>fails for the expected reason"}
+    RED -->|no| T
+    RED -->|yes| X["Execute the chunk<br/>cheap tier"]
+    X --> V["Validate<br/>family is not the executor's<br/>sees spec, diff and evidence, not reasoning"]
+    V -->|reject| X
+    V -->|accept| N{"More chunks?"}
+    N -->|yes| T
+    N -->|no| D["Done"]
+```
 
 Four properties carry the method, and all four are meant to be enforced rather than suggested:
 
@@ -15,7 +46,35 @@ Four properties carry the method, and all four are meant to be enforced rather t
 3. **Independent test authorship.** The executor cannot write or modify the tests that judge it. Locked by content hash, enforced by a hook.
 4. **Valid RED before GREEN.** Behavior-changing work cannot start until the intended assertion has run and failed *for the expected reason*. A syntax error is not a RED.
 
-The full set of eight runtime invariants is in [Invariants](../method/invariants.md).
+Validation happens **per chunk, not at the end**. A rejected chunk is a cheap retry against a small diff, and the next chunk does not start on top of unvalidated work. The full set of eight runtime invariants is in [Invariants](../method/invariants.md), and the stage-by-stage walkthrough is in [Workflow](../method/workflow.md).
+
+## Why it should cost less
+
+Only the seats that think need a frontier model. The seat that writes the code is the cheapest one in the loop.
+
+| Role | Default tier | Write access |
+|---|---|---|
+| Planner / orchestrator | Frontier | Read-only while planning |
+| Plan reviewer | Frontier | Read-only |
+| Test designer | Frontier or mid | Test files only |
+| **Executor** | **Cheap / fast** | **Implementation files** |
+| Validator | Mid / frontier | Read-only, plus test execution |
+
+The expensive thinking is front-loaded into planning and review, happens once, and is spent on the decisions that are costly to get wrong. Details are in [Roles and models](../method/roles-and-models.md).
+
+**What is claimed, and what is not.** The target in `PRD.md` §13 is at least 25% lower credit and token cost than an all-frontier run at no loss in hidden acceptance-test pass rate, and the PRD states it as a goal rather than a guaranteed outcome. That number has **not been measured**, because the pilot that would measure it has not been run.
+
+What Phase 0 did establish is that it will be measurable. Per-role cost attribution was assumed to depend on Missions, which turned out to be broken; instead, `usage.factory_credits` is reported per run, so invoking once per role attributes cost cleanly (`phase-0/GO-NO-GO.md`). `PRD.md` §4 commits to making no cost claim at all if attribution proves unavailable, on the grounds that an unmeasured cost claim invites a question that cannot be answered. That commitment still stands, and it is why this section has a mechanism and a target instead of a headline figure.
+
+## Why this is not already solved
+
+The primitives exist. Phase 0 confirmed that tool restrictions on a custom agent are genuinely enforced rather than merely requested ([Probe 3](../probes/probe-3-context-isolation.md)), that hooks can deterministically block a tool call ([Probe 4](../probes/probe-4-hook-blocking.md)), that an agent, a skill and a hook ship as a single install ([Probe 6](../probes/probe-6-plugin-boundary.md)), and that a model family gate can be enforced at invocation time ([Probe 2](../probes/probe-2-fallback-safety.md)).
+
+What does not exist is the layer above them: anything that **sequences the roles and constrains what crosses the boundary between them**. The obvious candidate was Missions, and `droid exec --mission` performs no work while reporting success, which removed that path and forced the design to be command-orchestrated. The go/no-go puts it plainly: the wrapper owns the state machine, so this is our code, not a platform feature.
+
+So the gap this project fills is not intelligence and not tooling. It is the **handoff** — a formal, enforced contract for what one agent hands the next, and what the next one is allowed to see. Today that handoff is a convention someone remembers to follow. The working version of it is already running by hand in this repository, where commits are the only baton between agents (`tools/wake-loop.md`).
+
+*Scope note: Probe 1 tested `droid exec --mission`, the scriptable path. The interactive Missions flow was not tested, and no claim is made about it.*
 
 ## Roadmap
 
@@ -23,20 +82,22 @@ The north star is a **replayable demo of the method on one bounded pilot change*
 
 | Phase | What it delivers | Status |
 |---|---|---|
-| **0 — Feasibility spike** | Eight probes and a go/no-go on Factory capabilities | **Done, GO** |
+| **0 — Feasibility spike** | Eight probes and a go/no-go on platform capabilities | **Done, GO** |
 | **0.5 — Manual baseline harness** | The smallest honest two-CLI harness; the §13 comparison arm and Act 1 of the demo | Not started |
 | **1 — Test-evidence slice** | Valid-RED classification, test locking, RED → GREEN on the pilot | Not started |
 | **2 — Adversarial planning slice** | Blind plan review, bounded reconciliation, human decision packets | Not started |
 | **3 — Factory end-to-end** | The full loop on one pilot change, plus a replayable demo and the baseline comparison | Not started |
 | **4 — Generalize** | A second stack and a portable Claude/Codex runtime | Not started |
 
-**Only Phase 0 has been built.** Everything from 0.5 onward is specified in `PRD.md` §11 and has not been started. No code exists for any of it, and the repository contains no partial implementation of a later phase.
-
 Each phase carries written exit criteria in `PRD.md` §11. A phase is finished when those are met, not when it looks finished, which is the same standard the probe records hold themselves to.
 
 Phase 0.5 is the one most easily misread as optional. It is the baseline arm the §13 evaluation already requires, and the PRD is explicit that it must not be strawmanned: if a two-CLI shell harness turns out to be nearly as good as the plugin, that is a finding worth having before a demo rather than during one.
 
-## Current status
+## Where we are against it
+
+**Only Phase 0 has been built.** Everything from 0.5 onward is specified and not started. No code exists for any of it, and there is no partial implementation of a later phase hiding anywhere in the tree.
+
+There is deliberately no application code yet. The repository is currently a **build gate**: a full product spec (`PRD.md`), the canonical sprint method it packages (`templates/SPRINT-PLANNING-TEMPLATE.md`), and a set of executed probes that test whether the platform can enforce what the spec assumes. Plugin directories get created once the probes say the design is buildable, not before.
 
 **Phase 0 is complete and the verdict is GO, with one mandatory design change:** build it command-orchestrated rather than Mission-native. See `phase-0/GO-NO-GO.md`, summarised in [Findings](../findings/index.md).
 
@@ -53,33 +114,30 @@ A probe is a **Phase-0-only device**: one feasibility question aimed at the plat
 | 7 | Usage attribution | Partially unblocked by Probe 2 |
 | [8](../probes/probe-8-self-declared-risk.md) | Self-declared risk as a policy input | **PASS with caveat** — the tier gates on a self-report |
 
-Every verdict is scoped to `droid` **0.186.0** on macOS. A version-less result cannot be rechecked later, so each probe record carries the CLI version, and a CLI upgrade invalidates the go/no-go until the probes are re-run.
+Every verdict is scoped to `droid` **0.186.0** on macOS. A version-less result cannot be rechecked later, so each probe record carries the CLI version, and a CLI upgrade invalidates the go/no-go until the probes are re-run. The primitives were re-checked six patch versions back and held; see [Cross-version validation](../findings/cross-version-validation.md).
 
-## The single most important finding
+## Early evidence for the core bet
 
-**The platform cannot fail loudly.** Four independent probes hit the same shape:
+The central claim, that a second model from a different family catches what the first one misses, has one early data point rather than a result. A pilot spec was reviewed by two models from different families. They agreed on the accept decision, overlapped on one defect, and each independently raised one the other did not.
 
-- a mission that performs no work and exits 0 ([Probe 1](../probes/probe-1-model-pinning.md))
-- a hook registered in the documented location that is never loaded ([Probe 4](../probes/probe-4-hook-blocking.md))
-- a model silently downgraded from maximum reasoning to none ([Probe 2](../probes/probe-2-fallback-safety.md))
-- a run whose every tool call was denied, still exiting 0 with a plausible answer ([Probe 2](../probes/probe-2-fallback-safety.md))
+It is a single unblinded sample on a specification rather than code, and all three findings were graded as nits by the reviewers themselves. It is written up honestly, including the reading that cuts against the hypothesis, in [First H1 observation](../findings/first-h1-evidence.md).
 
-That failure mode is documented in [Silent green](../findings/silent-green.md), and it is the reason the design centres on [one reference guard](../findings/reference-guard.md) that inspects reality instead of trusting configuration.
-
-## Where to start
-
-| If you want to | Read |
-|---|---|
-| See where the project is going | [Roadmap](#roadmap), then `PRD.md` §11 for exit criteria |
-| Understand the method being packaged | [Method](../method/index.md) → [Workflow](../method/workflow.md) |
-| Know what the platform can actually enforce | [Findings](../findings/index.md) |
-| Re-run a probe and check a claim yourself | [Getting started](./getting-started.md) |
-| See how the pieces fit together | [Architecture](./architecture.md) |
-| Look up a term | [Glossary](./glossary.md) |
-| Contribute, as a human or an agent | [How to contribute](../how-to-contribute/index.md) |
+The design consequence of Phase 0 is [one reference guard](../findings/reference-guard.md) that inspects reality instead of trusting configuration, which follows directly from the platform's inability to fail loudly.
 
 ## A note on scope and honesty
 
 The repository makes no claim to be a correctness oracle. Different model families are an independence control, not proof. Tests are executable evidence, not truth. Two reviewers agreeing means no known dispute and nothing more.
 
-The same standard applies to the probe records. Negative results get the same treatment as positive ones, an overturned verdict is kept alongside its correction rather than quietly edited, and unmeasured things are listed as unmeasured. See [Patterns and conventions](../how-to-contribute/patterns-and-conventions.md) for how that standard is applied in practice.
+The same standard applies to the probe records. Negative results get the same treatment as positive ones, an overturned verdict is kept alongside its correction rather than quietly edited, and unmeasured things are listed as unmeasured. See [Patterns and conventions](../how-to-contribute/patterns-and-conventions.md) for how that standard is applied in practice, and [Open questions](../background/open-questions.md) for what is still unresolved.
+
+## Where to start
+
+| If you want to | Read |
+|---|---|
+| Understand the method being packaged | [Method](../method/index.md) → [Workflow](../method/workflow.md) |
+| Know what the platform can actually enforce | [Findings](../findings/index.md) |
+| See the reasoning behind the design | [Background](../background/index.md) |
+| Re-run a probe and check a claim yourself | [Getting started](./getting-started.md) |
+| See how the pieces fit together | [Architecture](./architecture.md) |
+| Look up a term | [Glossary](./glossary.md) |
+| Contribute, as a human or an agent | [How to contribute](../how-to-contribute/index.md) |
