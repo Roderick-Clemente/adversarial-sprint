@@ -1,8 +1,10 @@
 # Adversarial Sprint
 
-**A framework for getting better code out of coding agents, at a lower token cost than putting a frontier model in every seat.**
+**A framework for getting better code out of coding agents, because quality comes from structural independence rather than a smarter model.**
 
-The bet is that quality comes from structure rather than from a smarter model. Two or more agents from **different model families** plan the work, attack each other's plan, cut it into chunks, and independently validate every chunk before the next one starts. No agent grades its own work, and no agent reviewing a piece of work is allowed to see the reasoning of the agent that produced it.
+Two or more agents from **different model families** plan the work, attack each other's plan, cut it into chunks, and independently validate every chunk before the next one starts. No agent grades its own work, and no agent reviewing a piece of work is allowed to see the reasoning of the agent that produced it.
+
+That is the primary claim and it is a claim about correctness. The measure for it is the hidden acceptance-test pass rate, which `PRD.md` §13 names as the primary external correctness measure. Spend is a separate question, handled further down as an allocatable lever rather than a second headline promise.
 
 ## Why you should care
 
@@ -48,9 +50,13 @@ Four properties carry the method, and all four are meant to be enforced rather t
 
 Validation happens **per chunk, not at the end**. A rejected chunk is a cheap retry against a small diff, and the next chunk does not start on top of unvalidated work. The full set of eight runtime invariants is in [Invariants](../method/invariants.md), and the stage-by-stage walkthrough is in [Workflow](../method/workflow.md).
 
-## Why it should cost less
+## Where the tokens go
 
-Only the seats that think need a frontier model. The seat that writes the code is the cheapest one in the loop.
+**The claim in this section is not that the method costs less.** It is that spend stops being a single dial on one model and becomes something the design places deliberately.
+
+The method spends *more* than a single-model run on planning, adversarial plan review, test design, and per-chunk validation. That is intentional. Those are the points where being wrong is expensive, because an error in the plan propagates into every chunk built on top of it, and an error the validator misses ships.
+
+That front-loaded spend is what makes the cheapest seat safe. By the time any implementation code is written, the work has been planned, attacked by a model from a different family, cut into a bounded chunk with a declared complexity ceiling, and given a test that has already failed for the expected reason. The executor is not being asked to decide what to do. It fills a specified hole with a test watching. That is why the cheapest model in the loop is the one holding the only seat with implementation write access.
 
 | Role | Default tier | Write access |
 |---|---|---|
@@ -60,11 +66,19 @@ Only the seats that think need a frontier model. The seat that writes the code i
 | **Executor** | **Cheap / fast** | **Implementation files** |
 | Validator | Mid / frontier | Read-only, plus test execution |
 
-The expensive thinking is front-loaded into planning and review, happens once, and is spent on the decisions that are costly to get wrong. Details are in [Roles and models](../method/roles-and-models.md).
+The escalation rule follows the same reasoning. An executor may be escalated one tier after a single failed attempt, but repeated escalation is treated as evidence that the *chunking* was wrong, so the chunk is re-cut rather than handed to a larger model ([Roles and models](../method/roles-and-models.md)). A bigger model is not the first lever reached for when something fails.
 
-**What is claimed, and what is not.** The target in `PRD.md` §13 is at least 25% lower credit and token cost than an all-frontier run at no loss in hidden acceptance-test pass rate, and the PRD states it as a goal rather than a guaranteed outcome. That number has **not been measured**, because the pilot that would measure it has not been run.
+### The harness as a tuning instrument
 
-What Phase 0 did establish is that it will be measurable. Per-role cost attribution was assumed to depend on Missions, which turned out to be broken; instead, `usage.factory_credits` is reported per run, so invoking once per role attributes cost cleanly (`phase-0/GO-NO-GO.md`). `PRD.md` §4 commits to making no cost claim at all if attribution proves unavailable, on the grounds that an unmeasured cost claim invites a question that cannot be answered. That commitment still stands, and it is why this section has a mechanism and a target instead of a headline figure.
+Every seat in the loop takes a model family and a cost tier as parameters. Nothing in the design pins a particular assignment, so the same harness can run one task repeatedly across different seat configurations and read off what each configuration produced on both axes independently: correctness, via the hidden acceptance-test pass rate, and spend, attributed per role.
+
+Framed that way, the three comparison runs in `PRD.md` §13 (a single frontier model that plans and reviews its own work; all-frontier separated roles; the role-tiered adversarial workflow) stop being a one-off A/B/C and become three sampled points on a surface the rig could sample more densely.
+
+**None of this has been run.** There is no tradeoff curve, no sampled surface, and no result of any kind to report. A quality-versus-spend plot is an *output the instrument is designed to produce*, not a claim this project is making, and the two axes are deliberately kept separate rather than collapsed into a ratio: a ratio that improves tells you nothing about which of the two terms moved. This subsection describes what becomes measurable next, on the same terms as everything else on this page.
+
+**What is claimed, and what is not.** The target in `PRD.md` §13 is at least 25% lower credit and token cost than an all-frontier run at no loss in hidden acceptance-test pass rate, and the PRD states it as a goal rather than a guaranteed outcome. That number has **not been measured**, because the pilot that would measure it has not been run. Nor has any other arm of the §13 comparison: no pilot task has been run end to end under any of the three configurations, so there is no baseline to compare against and no figure to quote in either direction.
+
+What Phase 0 did establish is that it will be measurable. Per-role cost attribution was assumed to depend on Missions, which turned out to be broken; instead, `usage.factory_credits` is reported per run, so invoking once per role attributes cost cleanly (`phase-0/GO-NO-GO.md`). `PRD.md` §4 commits to making no cost claim at all if attribution proves unavailable, on the grounds that an unmeasured cost claim invites a question that cannot be answered. That commitment still stands, and it is why this section describes a mechanism and an instrument instead of a headline figure.
 
 ## Why this is not already solved
 
