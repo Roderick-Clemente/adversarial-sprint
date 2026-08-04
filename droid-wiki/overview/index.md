@@ -25,6 +25,10 @@ If you run agents unattended, that is the real exposure. Not a bad diff you can 
 
 One frontier model plans. A model from a different family attacks that plan. The disagreements are reconciled, the work is cut into chunks, and then each chunk runs a small test-first cycle whose result is checked by a model that did not write it.
 
+Two diagrams follow, and they are deliberately the same diagram twice. The first is the method as it runs today. The second is the same loop with the enforcement layer drawn on top, because the project is about making this shape mandatory rather than about inventing a new one.
+
+### The method, run by hand today
+
 ```mermaid
 graph TD
     P["Plan<br/>frontier, family A"] --> R["Attack the plan<br/>frontier, family B"]
@@ -42,9 +46,43 @@ graph TD
     N -->|no| D["Done"]
 ```
 
-**This shape is not new, and that is the point.** The diagram is the method as already practiced: a planning, chunking and execution cycle that has been run by hand for months and is written down in `templates/SPRINT-PLANNING-TEMPLATE.md`, the canonical copy this project packages. Chunking in particular is a defined stage there, not a box invented for this page, and it carries a dependency graph in which independent chunks may run in parallel while dependent ones stay sequential. The landing diagram keeps a single chunk in view for legibility; the mechanics are in [Workflow](../method/workflow.md).
+This is the GROK, CHUNK and EXECUTE method in `templates/SPRINT-PLANNING-TEMPLATE.md`, the canonical copy this project packages. It has been run by hand for months and it works. Chunking is a defined stage there rather than a box invented for this page, and it carries a dependency graph in which independent chunks may run in parallel while dependent ones stay sequential. The diagram keeps one chunk in view for legibility; the full graph is in [Workflow](../method/workflow.md).
 
-What Phases 0.5 through 3 add is **enforcement**, not invention. The same shape, with the separations and gates made mandatory instead of remembered. Practiced by hand is not the same as enforced, and neither is the same as measured: the enforcement layer is unbuilt, and no comparison run exists yet.
+Nothing on this diagram is speculative. Every separation in it is something a person currently holds in their head and remembers to do.
+
+### The enforcement, and what the phases build
+
+The same loop. What changes is that each handoff becomes a contract that something checks, rather than a discipline someone maintains.
+
+```mermaid
+graph TD
+    P["Plan<br/>frontier, family A"] -->|"guard: family gate"| R["Attack the plan<br/>frontier, family B"]
+    R -->|disagreements| C["Reconcile<br/>bounded; a human breaks ties"]
+    C --> K["Cut into chunks"]
+    K -->|"author is not the executor"| T["Write the test<br/>author is not the executor"]
+    T --> RED{"Valid RED?<br/>fails for the expected reason"}
+    RED -->|no| T
+    RED -->|"yes · guard: tests hash-locked"| X["Execute the chunk<br/>cheap tier"]
+    X --> F["Refactor<br/>tests stay green"]
+    F -->|"guard: no reasoning crosses"| V["Validate<br/>family is not the executor's<br/>sees spec, diff and evidence, not reasoning"]
+    V -->|reject| X
+    V -->|accept| N{"More chunks?"}
+    N -->|yes| T
+    N -->|no| D["Done"]
+```
+
+The three edges marked `guard:` are **one mechanism, not three**. Phase 0's most useful constructive result is that independent test authorship, fresh review context and family separation collapse into a single `PreToolUse` hook of roughly thirty lines, differing only in what it inspects and what it refuses ([The reference guard](../findings/reference-guard.md)). Two things on the diagram are not that hook: the valid-RED classification, and the rule that each role is a separate invocation with its model explicitly pinned.
+
+**Where each contract actually stands.** These are not uniformly unbuilt, and the differences matter:
+
+| Contract | State |
+|---|---|
+| Family separation | Platform primitive **verified** in Phase 0. Explicit `--model` pins resolve exactly and an invalid ID fails closed at exit 1 ([Probe 2](../probes/probe-2-fallback-safety.md)). |
+| Locked tests | Platform primitive **verified**, conditionally. A hook blocks the executor's own edit and the run continues on the refusal, provided it is registered correctly and fails closed ([Probe 4](../probes/probe-4-hook-blocking.md)). |
+| Fresh review context | **Enforceable, not default, and holed.** The executor's session is readable off disk with `Grep` alone, and independently via `droid search`. Isolation holds only if the guard blocks those paths ([Probe 3](../probes/probe-3-context-isolation.md)). |
+| Valid RED, and the guard itself | **Our code, not yet written.** The platform will not classify a RED or detect its own silent degradation; that detection is ours to build. |
+
+So the enforcement layer is part verified primitive and part unwritten code, and one of its contracts has a known hole with a known fix. What does not exist in any form is a measured result: no arm of the `PRD.md` §13 comparison has been run, under any configuration.
 
 Four properties carry the method, and all four are meant to be enforced rather than suggested:
 

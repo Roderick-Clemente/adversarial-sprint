@@ -41,6 +41,24 @@ def anchors_of(path):
     return out
 
 
+def skeleton_drift():
+    """The landing page carries the loop twice: once as the method practiced today,
+    once with the enforcement layer on top. The second only reads as "the same shape,
+    now enforced" if it IS the same shape. Assert both diagrams share a node set, so a
+    later edit to one cannot silently turn them into two different flows."""
+    page = os.path.join(WIKI, "overview", "index.md")
+    if not os.path.exists(page):
+        return []
+    blocks = re.findall(r"```mermaid(.*?)```", open(page, encoding="utf-8").read(), re.S)
+    if len(blocks) != 2:
+        return []
+    nodes = [set(re.findall(r"([A-Z][A-Z0-9]*)\s*(?:\[|\{)", b)) for b in blocks]
+    if nodes[0] == nodes[1]:
+        return []
+    diff = sorted(nodes[0] ^ nodes[1])
+    return [("skeleton", page, f"landing diagrams differ by node(s): {', '.join(diff)}")]
+
+
 def main():
     root = os.getcwd()
     if not os.path.isdir(WIKI):
@@ -83,7 +101,9 @@ def main():
                     if frag not in anchor_cache[target]:
                         findings.append(("anchor", page, url))
 
-    counts = {k: 0 for k in ("dead", "anchor", "absolute", "escaping")}
+    findings += skeleton_drift()
+
+    counts = {k: 0 for k in ("dead", "anchor", "absolute", "escaping", "skeleton")}
     for kind, _p, _u in findings:
         counts[kind] += 1
     summary = " ".join(f"{k}={counts[k]}" for k in counts)
