@@ -198,3 +198,54 @@ git log --all --graph --oneline
 ```
 
 Anything not derivable from a command above was left off this page on purpose. For what the numbers mean rather than what they are, start at the [Overview](./overview/index.md) and the [Probes index](./probes/index.md).
+
+## Phase 0.5 — ladder numbers
+
+Measured against `factory/rung5.5-fakepass-close` at tip `8e02da3`, after the rung-5.5 fix-up and the closed `tools/PHASE-0.5-CLOSE.md`. Numbers are replay-able via `tools/REPRODUCE.md`. The `tools/` tree is the canonical source; entries below quote it verbatim.
+
+### Five-run ledger
+
+| rung | tag | model_id | family | num_turns | input | output | cache_read | thinking | duration_ms | is_error | decision |
+|------|-----|----------|--------|-----------:|------:|-------:|-----------:|---------:|------------:|----------|----------|
+| 3  | rung-3 (LIVE)                | gpt-5.4-mini    | openai   |  2 | 13 612 | 1 661 | 9 216 | 1 449 |  17 071 | false | REJECT            |
+| 7A | rung-7 Config A              | gpt-5.4-mini    | openai   |  3 | 15 465 | 3 179 | 22 016 | 2 842 | 32 414 | false | REJECT\*          |
+| 7B | rung-7 Config B              | gpt-5.4-mini    | openai   |  1 | 7 178  | 363   | 0     | 330   |  4 207 | false | ACCEPT            |
+| R4 | refactor-blind-v1 (Codex)    | gpt-5.3-codex   | GPT      | 26 | 90 050 | 13 616 | —     | —     | 171 000 | false | REJECT            |
+| R5 | refactor-blind-v1 (Grok)     | grok-4.5        | xAI      | 12 | 58 881 | 21 694 | —     | —     | 369 300 | false | ACCEPT-WITH-NITS  |
+
+\* The rung-7 Config A REJECT is **a false-REJECT via source-read**, not a genuine diff-driven finding. The validator read `api/llms_txt.py` directly despite an empty diff. Filed as `Issue: False-REJECT via source-read (isolation leak)` in `tools/KNOWN-ISSUES.md`.
+
+R4 / R5 cache-read and thinking-token columns are `—` because the orchestrator's blind MEASUREMENT run only supplied `input_tokens` and `output_tokens`. The two rows are §13 refactor-validation rows; both reviewers found the same content dimensions and split on severity.
+
+### Totals across the five runs
+
+| metric          | sum       | notes                                  |
+|-----------------|----------:|----------------------------------------|
+| run count       | 5         | 3 ladder runs + 2 MEASUREMENT runs     |
+| input tokens    | 185 186   |                                        |
+| output tokens   |  40 513   |                                        |
+| cache_read tok  |  31 232   | ladder runs only; R4 / R5 not supplied |
+| thinking tok    |   4 621   | ladder runs only; R4 / R5 not supplied |
+| duration_ms     | 593 992   | ≈ 9 min 54 s wall-clock for 5 runs     |
+
+Average per run: ~119 s. The two MEASUREMENT runs skew the average; the three ladder runs alone average ~17.9 s. Tokens across input / output / cache_read / thinking sum to 77 311 across the three ladder runs only — unchanged from prior revisions.
+
+### Operator-intervention count for Phase 0.5 = 1
+
+One single human-relay action across the seven-rung ladder and the cleanup pass:
+
+> Rod hand-relayed the BACKSTOP steer note into the session because `origin/orchestrator/steer` did not exist on this repository's remote. Surfaced verbatim in every rung and cleanup commit message; the ladder proceeded without further operator input.
+
+That is the §13 reference: per-validation-loop operator-intervention count drops from N (~16 actions per loop under the prior hand-relay method, where the four hand-relayed model families Grok / Kimi / Codex / Opus were run serially with prompt + verdict copy per family) to 1 under the validation primitive. The same defect input reviewed by the four-family panel graded ACCEPT-WITH-NITS, while the ladder's `gpt-5.4-mini` validator graded REJECT — a model-calibration question, not a primitive failure (cross-referenced in `tools/fixtures/rung7-reconciliation.md` corrected analysis).
+
+### Files added on the Phase-0.5 branch
+
+| category                                | files on `factory/rung5.5-fakepass-close` |
+|-----------------------------------------|---|
+| ladder pages (committed under `tools/`) | `tools/PHASE-0.5-CLOSE.md`, `tools/RUN-LEDGER.md`, `tools/KNOWN-ISSUES.md`, `tools/README.md`, `tools/REPRODUCE.md` |
+| gate logic                              | `tools/fixtures/rung3-gate.py`, `rung5-gate.py`, `rung6-gate.py`, `rung4-family-gate.py`, `rung3-extract-tool-calls.py`, `rung7b-fakepass-gate.py` |
+| envelope adapters (seam)                | `tools/adapters/__init__.py`, `tools/adapters/factory.py`, `tools/adapters/README.md` |
+| committed evidence (sanitised)          | `tools/fixtures/evidence/{rung3,rung7A,rung7B}-envelope.json`, `tools/fixtures/evidence/{rung3,rung7A,rung7B}-session.jsonl` |
+| regression guard                        | `tools/fixtures/rung7b-fakepass/{fake-envelope.json,fake-session.jsonl}` |
+
+The raw `build-evidence/` envelopes and un-publisher-side inner-session transcripts are **not** in the tree by design — they are untracked local captures whose paths (`/tmp/rung{n}-fresh-clone-…`, `~/.factory/sessions/-private-tmp-rung{n}-…`) point at ephemeral runtime directories that do not survive reboots. The committed evidence digests under `tools/fixtures/evidence/` are the durable form.

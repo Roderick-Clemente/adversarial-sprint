@@ -69,9 +69,24 @@ Phase 0 answered whether the platform **can** enforce the invariants. It did not
 
 Three probes are incomplete: #4 was never probed, #5 was never reached, and #7 is only partially unblocked. Every probe record ends with its own limits section, and those limits are part of the finding rather than a caveat on it.
 
+Findings do not record gate-level conclusions either. Phase 0.5 built a seven-rung gate ladder on top of the platform; it lives in `tools/` (the validation primitive, the run ledger, the ladder code) and its scope is the gates, not the platform. The one Page-0.5 finding that surfaces here is the gate-side silent-green the rung-5.5 fix closed; closed-but-not-merged gate work is filed in the tools tree, not in this wiki, until the ladder itself lands on `main`.
+
+## Phase 0.5 update
+
+[Cross-version validation](./cross-version-validation.md) and [Fake-pass via unmatched tool_use](./fake-pass.md) are the only post-Phase-0 findings in this section.
+
+### [Fake-pass via unmatched tool_use](./fake-pass.md)
+
+The seven-rung gate ladder, suspected of minting clean verdicts from real validator inputs, could mint clean verdicts from forged inputs too: an envelope with a fake verdict string, paired with an inner-session record whose only `tool_use` had no matching `tool_result`, passed `rung 3 / 5 / 6` clean on the pre-fix gates.
+
+Three aligned gaps allowed it: the adapter extracted `is_error=None` for unpaired tool calls, the rung-5 predicate refused only `True`, and the gates never read the envelope-level `is_error` flag. The rung-5.5 fix (one commit on `factory/rung5.5-fakepass-close`) closes the three gaps and registers the forged input as the regression guard in `tools/fixtures/rung7b-fakepass/`.
+
+Consequence: **a forged verifier input now fails loud at rung 5**, with the literal message `rung 5 RED — tool_call is_error must be False (got None)`. This is the same principle as Phase 0's exit-code rule — assert on observed effect, never on the verifier's prose — applied to the gates themselves.
+
 ## Related
 
 - [Cross-version validation](./cross-version-validation.md) — the same primitives at `droid` 0.180.0
+- [Fake-pass via unmatched tool_use](./fake-pass.md) — the rung-5.5 gate-side silent-green closed in Phase 0.5
 - [First H1 evidence](./first-h1-evidence.md) — the first later-phase datapoint, scoped as signal not proof
 - [Probes](../probes/index.md) — the evidence these conclusions rest on
 - [Invariants](../method/invariants.md) — what is being enforced and why

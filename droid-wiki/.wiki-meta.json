@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-08-04T19:14:47Z",
+  "generatedAt": "2026-08-05T19:28:54Z",
   "commitHash": "21caed128d6350d3a6df090a2d72ff3763e21f97",
   "branch": "main",
-  "pageCount": 38,
+  "pageCount": 39,
   "topLevelSections": [
     "overview",
     "by-the-numbers",
@@ -47,6 +47,7 @@
     "findings/reference-guard.md",
     "findings/cross-version-validation.md",
     "findings/first-h1-evidence.md",
+    "findings/fake-pass.md",
     "security.md",
     "background/index.md",
     "background/design-decisions.md",

@@ -119,9 +119,41 @@ PRD §15 states the gap between the two columns as the demo's argument. Run by h
 
 The template's honest name for its own weakest point is *Sprint Principles*. Principles are conventions an operator maintains. The plugin's contribution is turning eight of them into invariants that fail the run instead.
 
+## Phase 0.5 — ladder as a gate machine
+
+The plugin turn eight principles into invariants, but only four of them (#3 / #4 / #5 / #6) live at chunk level and only four (#1 / #2 / #7 / #8) live at runtime level. A different decomposition applies **to the gate side itself**: a single validator invocation against a single chunk is one run; the *gates* that gate that run are themselves a small machine.
+
+Phase 0.5 wrote that machine as a seven-rung ladder, each rung owning one orthogonal axis. The ladder lives in `tools/` rather than in the plugin because it sits below the plugin's chunk-validation step — its job is to vet the validator's invocation, not the chunk itself.
+
+| rung | axis (one only — failures do not sound as each other) | gate file (committed) |
+|------|---|---|
+|  1   | the bug-present pin (BASE → HEAD + diff_hash) is reproducible | `tools/fixtures/rung1-grep-gate.py` |
+|  2   | the rendered prompt keeps executor reasoning out of the validator's view | `tools/fixtures/rung2-canary-check.py` |
+|  3   | the run actually happened (`num_turns > 0`, tokens present, tools exercised) | `tools/fixtures/rung3-gate.py` |
+|  4   | validator and executor seats are different model lineages | `tools/fixtures/rung4-family-gate.py` |
+|  5   | the validator actually inspected the code, not narrated from KB | `tools/fixtures/rung5-gate.py` |
+|  6   | the verdict LITERALLY reports what it claims (decision regex + finding regex) | `tools/fixtures/rung6-gate.py` |
+|  7   | a no-op run fails loud (negative control) | `tools/fixtures/rung7-{configA,configB}-digest.json` |
+
+Three rules govern the ladder:
+
+- **One rung owns one axis.** A rung-3 fail is "the run did not happen"; a rung-5 fail is "the validator did not inspect"; a rung-6 fail is "the verdict text does not match the prose". Different axes imply different fixes.
+- **Gates assert on reality, never on exit code alone.** Each rung parses the inner-session jsonl, the verifier's verdict text, or both — the gate's exit code is a digest of those assertions, not a stand-alone verdict.
+- **Negative controls are committed.** A rung-7 fixture with an empty diff passes rung 3 / 5 / 6 in its pre-fix shape; the brief's intent of fail-loud on no-op is what rung 7 measures.
+
+The seam under the ladder is `tools/adapters/factory.py`, a single public function returning a normalised envelope. The gates consume the normalised shape and never mention the executor by name. Vendor adapters beyond the Factory one (Codex/Anthropic/Ollama) are explicit Phase 4 work; the seam is what permits them.
+
+The ladder was closed with a one-rung fix-up — rung 5.5 — when the gates were found to mint a clean accept-cut from a forged verifier input whose only `tool_use` had no matching `tool_result`. Three aligned gaps aligned into the silent-green: the adapter extracted `is_error=None`, the rung-5 predicate refused only `True`, and no gate read the envelope's run-level `is_error`. The fix changes rung 5's failure condition to `if tc.get("is_error") is not False` and threads the envelope-level check into rung 3 / 5 / 6. The forged fixture ships in `tools/fixtures/rung7b-fakepass/` as the regression guard, gated by `tools/fixtures/rung7b-fakepass-gate.py`. The finding is recorded in [Fake-pass via unmatched tool_use](../findings/fake-pass.md).
+
+The ladder's contribution to the method it shares with this template is also load-bearing. Its `tools/RUN-LEDGER.md` carries the §13 One-vs-N proof: per-validation-loop operator-intervention count drops from N (the prior hand-relay method) to 1 (one auto-routed executor invocation per loop). The principles the template names are conventions; the ladder makes the *gate-level* discipline principle — never gate on exit code — machine-enforced.
+
 ## Related
 
 - [Workflow](./workflow.md) — the same GROK/CHUNK/EXECUTE machine as the plugin's stage machine
 - [Invariants](./invariants.md) — the eight guarantees the right-hand column above refers to
 - [Roles and models](./roles-and-models.md) — who performs each step once it is automated
 - [Glossary](../overview/glossary.md)
+- `tools/README.md` — the validation primitive canonicalised
+- `tools/RUN-LEDGER.md` — five-run ledger and §13 One-vs-N comparison
+- `tools/PHASE-0.5-CLOSE.md` — the close criteria with verbatim gate outputs
+- [Fake-pass via unmatched tool_use](../findings/fake-pass.md) — the rung-5.5 fix
