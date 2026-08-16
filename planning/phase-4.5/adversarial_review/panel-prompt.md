@@ -15,15 +15,15 @@ The panel is asked to review the *commit series* on branch
 across 33 files. Commits in chronological order:
 
 ```
-758c349 phase-4.5: chunk 9 — final exit-criteria self-check + rehydration step
-0889296 phase-4.5: chunk 8 — adversarial review pass + skill digest
-87271eb phase-4.5: chunk 7 — RUN-PROMPT + ASSUMPTIONS + KNOWN-ISSUES + BUILD-NOTES
-825fa0c phase-4.5: chunk 6 — CI flavor (a) workflow + companion doc
-489b673 phase-4.5: chunk 5 — runner orchestrator + examples + integration tests
-969fcbd phase-4.5: chunk 4 — per-chunk inner loop composing existing primitives
-caba6cd phase-4.5: chunk 3 — role prompt templates + pluggable renderer
-011362d phase-4.5: chunk 2 — droid wrapper + validation backends (Track B)
-8f5ecda phase-4.5: chunk 1 — state machine + config + tests + §18 operating rule
+1908979 phase-4.5: chunk 9 — final exit-criteria self-check + rehydration step
+fb8d0db phase-4.5: chunk 8 — adversarial review pass + skill digest
+a9e80f5 phase-4.5: chunk 7 — RUN-PROMPT + ASSUMPTIONS + KNOWN-ISSUES + BUILD-NOTES
+12fe4d5 phase-4.5: chunk 6 — CI flavor (a) workflow + companion doc
+33e560d phase-4.5: chunk 5 — runner orchestrator + examples + integration tests
+c3a1eb4 phase-4.5: chunk 4 — per-chunk inner loop composing existing primitives
+5bd405b phase-4.5: chunk 3 — role prompt templates + pluggable renderer
+b2a4bb6 phase-4.5: chunk 2 — droid wrapper + validation backends (Track B)
+cac6271 phase-4.5: chunk 1 — state machine + config + tests + §18 operating rule
 ```
 
 READ ONLY. No `Execute`, no `Edit`. Do not modify the tree.

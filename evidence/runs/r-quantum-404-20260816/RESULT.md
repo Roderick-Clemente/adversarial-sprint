@@ -56,11 +56,11 @@ Note: the executor row is not in `telemetry/runs.jsonl` (the crash happened befo
 row flushed); its usage above is read from `evidence/c1/c1-ex-envelope.json`.
 
 ## Fixes applied to the framework clone (branch `factory/readiness-fixes`)
-- `34b3272` — drop non-existent `ApplyPatch`/`MultiEdit` tool ids; droid 0.180's
+- `a5e2567` — drop non-existent `ApplyPatch`/`MultiEdit` tool ids; droid 0.180's
   registry only has `Read,Glob,Grep,LS,Edit,Create,Execute`. Passing the missing
   ids made `droid exec` reject the list (`Unknown tool identifier(s)`) and emit a
   0-byte envelope.
-- `3554cdc` — commit the generated lock manifest so the §7/§15 clean-tree preflight
+- `fc7bb93` — commit the generated lock manifest so the §7/§15 clean-tree preflight
   passes on re-run.
 
 ## Known issue (not fixed — deferred)
@@ -113,7 +113,7 @@ The prediction held — the first live run did not complete cleanly. Four breaks
 all filed in `tools/KNOWN-ISSUES.md` with repros:
 - KI-1 planner 600s per-call timeout when no `pilot_spec_file` was wired (fixed).
 - KI-2 executor `enabled_tools` named `ApplyPatch`/`MultiEdit`, absent from droid
-  0.180 → 0-byte envelope → family='unknown' guard (fixed, commit `34b3272`).
+  0.180 → 0-byte envelope → family='unknown' guard (fixed, commit `a5e2567`).
 - KI-3 `commit_chunk_change` empty-commit crash when `evidence_output_dir` is
   outside `framework_root` (open; one-line config fix documented).
 - KI-4 the gate dropped grok's single HIGH plan-review finding (F-3a91c2) from

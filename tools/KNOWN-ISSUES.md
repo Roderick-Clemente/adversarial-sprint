@@ -18,7 +18,7 @@ verdict with a substantive doubled-charset finding, and passes
 all three gates. Pipeline fails to fail loud — the validator over-
 claims based on source inspection rather than the diff under review.
 
-### Repro (commit `2098859`)
+### Repro (commit `601a454`)
 
 - **Config A — empty diff; default tools.**
   ```
@@ -265,7 +265,7 @@ completed in ~330s. Root cause is the missing spec, not the cap.
 
 ## Issue KI-2: Executor tool allowlist names tools absent from droid 0.180
 
-- **Status:** FIXED (commit `34b3272`). Was: run-blocking.
+- **Status:** FIXED (commit `a5e2567`). Was: run-blocking.
 - **Surface:** `tools/sprint-loop.py` `main()` role assembly (executor + test-designer `enabled_tools`).
 - **Filed:** 2026-08-16.
 
