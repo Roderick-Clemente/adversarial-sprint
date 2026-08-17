@@ -2009,173 +2009,172 @@ def test_overlay_replaces_examples():
         )
 
 
-# ── KI-3 regression: audit commit with evidence outside framework ──────
+# ── KI-4 regression: dropped HIGH plan-review finding ───────────────────
 
 
-def test_ki3_commit_chunk_skips_commit_when_nothing_staged(monkeypatch, capsys):
-    """KI-3 regression: with evidence_output_dir OUTSIDE framework_root
-    (the supported [H-9] per-pilot overlay pattern) nothing is staged,
-    and the old unconditional `git commit` crashed with "nothing to
-    commit" after the whole loop had already succeeded. The runner must
-    skip the audit commit instead of firing it empty."""
+def _ki4_fixture_result_text() -> str:
+    """grok-4.5's real plan-reviewer envelope from the first live run
+    (r-quantum-404-20260816), committed verbatim as a fixture — same
+    pattern as rung7b-fakepass. Its first fenced JSON block follows
+    prose and a `---` rule and quotes a `{{chunk_spec}` template
+    literal in an evidence string, which desynced the old
+    brace-counting parser."""
+    repo = subprocess.check_output(
+        ["git", "rev-parse", "--show-toplevel"], cwd=os.path.dirname(_TOOLS)
+    ).decode().strip()
+    path = os.path.join(repo, "tools", "fixtures", "ki4-dropped-high",
+                        "plan-reviewer-1-envelope.json")
+    assert os.path.isfile(path), f"KI-4 fixture missing: {path}"
+    env = json.loads(open(path).read())
+    return env["result"]
+
+
+def test_ki4_all_six_findings_parse_from_real_envelope():
+    """KI-4 regression: the parser must recover ALL findings from
+    grok's real envelope. The old parser returned 5 of 6, silently
+    dropping the only HIGH."""
     mod = _load_sprint_loop_module()
-    from sprint_loop.state import ChunkState, GateDecision
-
-    git_calls: list[tuple] = []
-
-    def fake_git(*args, cwd=None):
-        git_calls.append(args)
-        return ""
-
-    monkeypatch.setattr(mod, "_git", fake_git)
-
-    rs = _make_run_state()
-    rs.dry_run = False
-    rs.output_branch = "factory/sprint-r-test-ki3"  # pre-set: no checkout -b
-    chunk = ChunkState(chunk_id="c1", scope="x",
-                       gate_decision=GateDecision.ACCEPT)
-
-    # evidence dir OUTSIDE _REPO_ROOT — relpath starts with ".."
-    mod.commit_chunk_change(rs, chunk,
-                            evidence_output_dir="/tmp/outside-pilot/evidence",
-                            run_evidence_dir=None)
-
-    committed = [c for c in git_calls if c and c[0] == "commit"]
-    added = [c for c in git_calls if c and c[0] == "add"]
-    assert not committed, (
-        f"KI-3 regression: empty audit commit fired anyway: {committed}"
+    findings = mod._parse_finding_block(
+        "plan-reviewer-1", _ki4_fixture_result_text(),
+        "r-quantum-404", "grok-4.5", "grok-family", 1)
+    ids = {f.finding_id for f in findings}
+    assert len(findings) == 6, (
+        f"KI-4 regression: expected 6 findings, got {len(findings)}: {ids}"
     )
-    assert not added, f"nothing should be staged, got: {added}"
-    assert rs.commit_count == 0
-    err = capsys.readouterr().err
-    assert "[H-9]" in err  # operator told the pilot repo owns archival
-    assert "skipping audit commit" in err
+    assert ids == {"F-3a91c2", "F-8c2e14", "F-b7d401",
+                   "F-51e0aa", "F-c0f3a9", "F-2d9b17"}
 
 
-def _fake_git_with_staged_content(git_calls):
-    """fake_git that reports staged content for `diff --cached` so the
-    F-7c8d9e clean-index guard sees a dirty index."""
-    def fake_git(*args, cwd=None):
-        git_calls.append(args)
-        if args[:2] == ("diff", "--cached"):
-            return "evidence/some-staged-file.json"
-        return ""
-    return fake_git
-
-
-def test_ki3_commit_chunk_still_commits_when_evidence_inside_root(monkeypatch):
-    """The fix must not over-skip: evidence INSIDE framework_root still
-    stages and commits exactly as before."""
+def test_ki4_dropped_high_finding_is_present_with_high_severity():
+    """The specific silent-green shape: F-3a91c2 (severity=high) never
+    reached findings.jsonl or the reconcile packet, so the §5.3
+    'no open blocker|high' precondition passed vacuously and the plan
+    auto-accepted on 1/2 APPROVE."""
     mod = _load_sprint_loop_module()
-    from sprint_loop.state import ChunkState, GateDecision
-
-    git_calls: list[tuple] = []
-    monkeypatch.setattr(mod, "_git", _fake_git_with_staged_content(git_calls))
-
-    rs = _make_run_state()
-    rs.dry_run = False
-    rs.output_branch = "factory/sprint-r-test-ki3"
-    chunk = ChunkState(chunk_id="c1", scope="x",
-                       gate_decision=GateDecision.ACCEPT)
-
-    inside = os.path.join(mod._REPO_ROOT, "evidence", "phase-4.5",
-                          "build-evidence", "r-test-ki3")
-    mod.commit_chunk_change(rs, chunk, evidence_output_dir=inside,
-                            run_evidence_dir=None)
-
-    assert any(c and c[0] == "add" for c in git_calls)
-    assert any(c and c[0] == "commit" for c in git_calls)
-    assert rs.commit_count == 1
+    findings = mod._parse_finding_block(
+        "plan-reviewer-1", _ki4_fixture_result_text(),
+        "r-quantum-404", "grok-4.5", "grok-family", 1)
+    high = [f for f in findings if f.finding_id == "F-3a91c2"]
+    assert high, "KI-4 regression: F-3a91c2 dropped from the ledger again"
+    assert high[0].severity == "high"
+    assert high[0].status == "open"
 
 
-def test_ki3_outside_evidence_inside_checkpoint_still_commits_f_1a2b3c(
-        monkeypatch, tmp_path):
-    """Review finding F-1a2b3c: the mixed H-9/H-10 path — evidence dir
-    OUTSIDE framework_root but run_evidence_dir INSIDE with a
-    checkpoint.json present — must still stage the checkpoint and
-    commit. The KI-3 skip must not swallow the H-10 contract
-    ('the checkpoint is committed to the audit branch')."""
+def test_ki4_parser_survives_unbalanced_braces_inside_strings():
+    """Synthetic minimal repro: a finding whose string value contains
+    an unbalanced `{` (e.g. a quoted template literal) must still
+    parse, and must not swallow the finding that follows it."""
     mod = _load_sprint_loop_module()
-    from sprint_loop.state import ChunkState, GateDecision
-
-    git_calls: list[tuple] = []
-    monkeypatch.setattr(mod, "_git", _fake_git_with_staged_content(git_calls))
-
-    run_evidence_dir = os.path.join(mod._REPO_ROOT, "evidence",
-                                    "phase-4.5", "build-evidence",
-                                    "r-test-ki3-mixed")
-    os.makedirs(run_evidence_dir, exist_ok=True)
-    cp = os.path.join(run_evidence_dir, "checkpoint.json")
-    try:
-        with open(cp, "w") as fh:
-            fh.write("{}")
-
-        rs = _make_run_state()
-        rs.dry_run = False
-        rs.output_branch = "factory/sprint-r-test-ki3"
-        chunk = ChunkState(chunk_id="c1", scope="x",
-                           gate_decision=GateDecision.ACCEPT)
-
-        mod.commit_chunk_change(
-            rs, chunk,
-            evidence_output_dir=str(tmp_path / "outside-evidence"),
-            run_evidence_dir=run_evidence_dir)
-    finally:
-        os.remove(cp)
-        os.removedirs(run_evidence_dir)
-
-    added = [c for c in git_calls if c and c[0] == "add"]
-    assert any("checkpoint.json" in " ".join(c) for c in added), (
-        f"F-1a2b3c: H-10 checkpoint not staged; adds: {added}"
+    text = (
+        'prose preamble\n\n---\n\n```json\n'
+        '{"finding_id": "F-aaa111", "severity": "high",'
+        ' "category": "operability",'
+        ' "claim": "x", "evidence": ["validator receives {{chunk_spec}"],'
+        ' "recommended_change": "y"}\n```\n\nmore prose\n\n'
+        '{"finding_id": "F-bbb222", "severity": "low",'
+        ' "category": "spec-deviation", "claim": "z",'
+        ' "evidence": [], "recommended_change": "w"}\n'
     )
-    assert any(c and c[0] == "commit" for c in git_calls)
-    assert rs.commit_count == 1
+    findings = mod._parse_finding_block(
+        "plan-reviewer-1", text, "r-x", "grok-4.5", "grok-family", 1)
+    got = {(f.finding_id, f.severity) for f in findings}
+    assert got == {("F-aaa111", "high"), ("F-bbb222", "low")}
 
 
-def test_ki3_clean_index_after_add_skips_commit_real_git_f_7c8d9e(
-        monkeypatch, tmp_path, capsys):
-    """Review finding F-7c8d9e: stage_paths non-empty but the staged
-    paths are byte-identical to HEAD — `git add -f` stages nothing and
-    the old unconditional commit crashed with 'nothing to commit'.
-    Real git in a temp repo, not fake_git, because fake_git cannot
-    express an unchanged index."""
+def test_ki4_parser_extracts_findings_from_json_array_f_a1b2c3():
+    """Review finding F-a1b2c3: a reviewer that wraps its findings in
+    a `findings: [...]` array must still yield every element — the
+    array wrapper itself carries no finding_id and must not appear."""
     mod = _load_sprint_loop_module()
-    from sprint_loop.state import ChunkState, GateDecision
+    text = (
+        '{"findings": ['
+        '{"finding_id": "F-bbb222", "severity": "high",'
+        ' "category": "semantic", "claim": "a", "evidence": [],'
+        ' "recommended_change": "r1"},'
+        '{"finding_id": "F-ccc333", "severity": "low",'
+        ' "category": "nit", "claim": "b", "evidence": [],'
+        ' "recommended_change": "r2"}'
+        ']}'
+    )
+    findings = mod._parse_finding_block(
+        "plan-reviewer-1", text, "r-x", "grok-4.5", "grok-family", 1)
+    got = {(f.finding_id, f.severity) for f in findings}
+    assert got == {("F-bbb222", "high"), ("F-ccc333", "low")}
 
-    repo = tmp_path / "fw"
-    evidence = repo / "evidence" / "r-test"
-    evidence.mkdir(parents=True)
-    (evidence / "bundle.json").write_text("{}")
-    for args in (("init", "-q"),
-                 ("config", "user.email", "t@t"),
-                 ("config", "user.name", "t"),
-                 ("add", "-A"),
-                 ("commit", "-q", "-m", "seed")):
-        subprocess.run(["git", *args], cwd=str(repo), check=True,
-                       capture_output=True)
 
-    monkeypatch.setattr(mod, "_REPO_ROOT", str(repo))
+def test_ki4_parser_no_double_count_from_nested_finding_id_f_d4e5f6():
+    """Review finding F-d4e5f6: a wrapper object that embeds a child
+    dict repeating the same finding_id must yield exactly ONE ledger
+    row — double-counting a HIGH would distort the §5.3 gate just as
+    dropping one did. Policy: nearest enclosing object per occurrence,
+    dedupe by finding_id, first wins."""
+    mod = _load_sprint_loop_module()
+    text = (
+        '{"finding_id": "F-aaa111", "severity": "high",'
+        ' "category": "semantic", "claim": "outer", "evidence": [],'
+        ' "recommended_change": "r",'
+        ' "child": {"finding_id": "F-aaa111", "severity": "high",'
+        ' "claim": "inner"}}'
+    )
+    findings = mod._parse_finding_block(
+        "plan-reviewer-1", text, "r-x", "grok-4.5", "grok-family", 1)
+    assert len(findings) == 1, (
+        f"F-d4e5f6: nested duplicate double-counted: "
+        f"{[(f.finding_id, f.claim) for f in findings]}"
+    )
+    assert findings[0].finding_id == "F-aaa111"
+    # First text occurrence wins after nearest-object resolve; here the
+    # outer finding_id key precedes the child's, so outer is kept.
+    assert findings[0].claim == "outer"
 
-    rs = _make_run_state()
-    rs.dry_run = False
-    rs.output_branch = "factory/sprint-r-test-ki3"
-    chunk = ChunkState(chunk_id="c1", scope="x",
-                       gate_decision=GateDecision.ACCEPT)
 
-    head_before = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=str(repo),
-        capture_output=True, text=True, check=True).stdout.strip()
+def test_ki4_parser_nested_duplicate_child_key_first_keeps_inner_f_c0ffee():
+    """Review finding F-c0ffee: the dedupe policy is first-TEXT-
+    occurrence-wins, not outer-wins. When the child dict is written
+    before the parent's own finding_id key, the child's occurrence
+    resolves first and its row is the one kept. Severity gating is
+    unaffected either way (same id, one row); this pins which claim
+    text reaches the ledger."""
+    mod = _load_sprint_loop_module()
+    text = (
+        '{"child": {"finding_id": "F-aaa111", "severity": "high",'
+        ' "claim": "inner"},'
+        ' "finding_id": "F-aaa111", "severity": "high",'
+        ' "category": "semantic", "claim": "outer", "evidence": [],'
+        ' "recommended_change": "r"}'
+    )
+    findings = mod._parse_finding_block(
+        "plan-reviewer-1", text, "r-x", "grok-4.5", "grok-family", 1)
+    assert len(findings) == 1
+    assert findings[0].finding_id == "F-aaa111"
+    assert findings[0].severity == "high"  # gate input identical
+    assert findings[0].claim == "inner"    # first occurrence in text
 
-    # evidence dir inside repo but already committed unchanged:
-    # add -f stages nothing; must skip, not crash.
-    mod.commit_chunk_change(rs, chunk,
-                            evidence_output_dir=str(evidence),
-                            run_evidence_dir=None)
 
-    head_after = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=str(repo),
-        capture_output=True, text=True, check=True).stdout.strip()
-    assert head_after == head_before, "no commit should have been created"
-    assert rs.commit_count == 0
-    err = capsys.readouterr().err
-    assert "nothing to commit, skipping audit commit" in err
+def test_ki4_parser_distinct_nested_ids_both_survive():
+    """Counterpart to F-d4e5f6: dedupe is by finding_id, so an outer
+    and a nested child with DIFFERENT ids are two real findings — the
+    dedupe must not swallow a distinct nested HIGH."""
+    mod = _load_sprint_loop_module()
+    text = (
+        '{"finding_id": "F-aaa111", "severity": "low",'
+        ' "category": "nit", "claim": "outer", "evidence": [],'
+        ' "recommended_change": "r",'
+        ' "related": {"finding_id": "F-bbb222", "severity": "high",'
+        ' "claim": "inner"}}'
+    )
+    findings = mod._parse_finding_block(
+        "plan-reviewer-1", text, "r-x", "grok-4.5", "grok-family", 1)
+    got = {(f.finding_id, f.severity) for f in findings}
+    assert got == {("F-aaa111", "low"), ("F-bbb222", "high")}
+
+
+def test_ki4_parser_prose_finding_id_without_object_yields_nothing_f_a1b2c3():
+    """Review finding F-a1b2c3: a finding_id quoted in prose with no
+    enclosing JSON object must not fabricate a ledger row."""
+    mod = _load_sprint_loop_module()
+    text = ('the reviewer discussed "finding_id": "F-ddd444" in prose '
+            'without emitting any JSON object')
+    findings = mod._parse_finding_block(
+        "plan-reviewer-1", text, "r-x", "grok-4.5", "grok-family", 1)
+    assert findings == []
