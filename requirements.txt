@@ -2,5 +2,5 @@ pytest==9.0.3
 pytest-cov==7.1.0
 pygments==2.20.0
 ruff==0.16.3
-mypy==1.10.0
+mypy==2.3.1
 deptry==0.25.1
