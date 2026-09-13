@@ -244,7 +244,7 @@ jobs:
 
       - name: Post gate decision as PR comment
         if: success() || failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const droidAvailable = '${{ steps.droid-recheck.outputs.available }}' === 'true' || '${{ steps.droid-check.outputs.available }}' === 'true';
@@ -297,7 +297,7 @@ jobs:
 
       - name: Surface as PR status check
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const droidAvailable = '${{ steps.droid-recheck.outputs.available }}' === 'true' || '${{ steps.droid-check.outputs.available }}' === 'true';
